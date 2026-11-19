@@ -23,6 +23,10 @@ class RoomViewModel(roomId: String = "1") : ViewModel() {
             roomNumber = "613583246",
             onlineCount = 1,
             announcement = "Selamat datang di room VenderLive",
+            cpBound = true,
+            cpLeftName = "BANG EX",
+            cpRightName = "Vivi",
+            giftCombo = 10,
             hostSeat = MicSeat(index = 0, userId = "host", nickname = "BANG EX", level = 12, isHost = true),
             seats = (1..12).map { i ->
                 when (i) {

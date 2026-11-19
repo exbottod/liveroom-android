@@ -90,6 +90,16 @@ fun RoomContent(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             )
 
+            if (state.cpBound) {
+                CpBoundBanner(
+                    leftName = state.cpLeftName,
+                    rightName = state.cpRightName,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 8.dp),
+                )
+            }
+
             Spacer(Modifier.height(6.dp))
 
             HostRow(state = state, onSeatClick = onSeatClick)
@@ -116,6 +126,13 @@ fun RoomContent(
                 onToggleMic = onToggleMic,
             )
         }
+
+        GiftComboOverlay(
+            combo = state.giftCombo,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 96.dp, end = 12.dp),
+        )
 
         SideRail(
             modifier = Modifier

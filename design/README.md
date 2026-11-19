@@ -48,3 +48,15 @@ Prefixes say where an asset belongs, so a slot is recognisable at a glance:
 
 Artwork is always ours. The names only mirror the reference layout so swapping or
 adding a slot later is predictable.
+
+## Room motion effects
+
+The reference app ships its effects as `.svga` files. We do not use those. Our effects are
+built two ways, both editable:
+
+1. In app: `ui/room/RoomAnimations.kt` draws the speaking ripple, gift combo counter,
+   CP bound banner and music disc from primitives, so wording, colour and timing are code.
+2. As source art: `design/anim/*.svg` holds the same four effects with the text baked in.
+   If you want them as `.svga`, import the SVG into the SVGAConverter project, export, and
+   drop the result into `app/src/main/assets/svga/`. The player is Apache-2.0, so only the
+   dependency and the asset folder are needed.

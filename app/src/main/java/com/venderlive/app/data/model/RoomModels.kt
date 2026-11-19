@@ -36,4 +36,8 @@ data class RoomUiState(
     val muted: Boolean = false,
     val speakerOn: Boolean = true,
     val unreadCount: Int = 0,
+    val cpBound: Boolean = false,
+    val cpLeftName: String = "",
+    val cpRightName: String = "",
+    val giftCombo: Int = 0,
 )

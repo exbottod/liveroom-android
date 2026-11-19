@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="96" viewBox="0 0 520 96">
+  <defs>
+    <linearGradient id="cpBg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FF4D8D" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#7C4DFF" stop-opacity="0.42"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="24" width="512" height="48" rx="24" fill="url(#cpBg)" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="1.5"/>
+  <path d="M34 40c-5-8-16-3-16 5 0 7 11 12 16 16 5-4 16-9 16-16 0-8-11-13-16-5z" fill="#FF6B9D"/>
+  <text x="72" y="55" font-family="DejaVu Sans, Arial, sans-serif" font-size="19" font-weight="700" fill="#FFFFFF">BANG EX   CP TERIKAT   Vivi</text>
+  <path d="M452 40c-5-8-16-3-16 5 0 7 11 12 16 16 5-4 16-9 16-16 0-8-11-13-16-5z" fill="#FF6B9D"/>
+</svg>
