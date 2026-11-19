@@ -87,3 +87,15 @@ Add both to Firebase Console > Project settings > Your apps > com.venderlive.app
 > Add fingerprint. Debug key only; a separate release keystore with its own
 password is required for Play Store uploads, and its fingerprints must be added
 to Firebase as well.
+
+## Assets
+
+All visuals in this app are original to VenderLive. No artwork, icons, sounds or
+animations from any other app are used.
+
+Phase 1 ships vector (XML) drawables only: launcher mark, login gradient, mic and
+seat placeholders. Vector drawables scale to every screen density by themselves,
+which is why there are no `drawable-xxhdpi` / `mipmap-xxxhdpi` folders yet. Those
+folders only become necessary when we add bitmap art (room skins, gift
+animations, level badges), and each one gets its own new artwork per density or
+a single `drawable-nodpi` file.
