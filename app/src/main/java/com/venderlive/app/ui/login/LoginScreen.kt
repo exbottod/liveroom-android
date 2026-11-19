@@ -58,6 +58,9 @@ import com.venderlive.app.ui.theme.BrandAccent
 import com.venderlive.app.ui.theme.BrandPrimary
 import com.venderlive.app.ui.theme.SurfaceDark
 
+private const val TERMS_URL = "https://exbottod.github.io/liveroom-android/agreement.html"
+private const val PRIVACY_URL = "https://exbottod.github.io/liveroom-android/privacy.html"
+
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
@@ -68,10 +71,24 @@ fun LoginScreen(
     if (phoneMode || st.stepOtp) {
         PhoneLoginScreen(viewModel, onLoggedIn, onBack = { phoneMode = false })
     } else {
+        val context = LocalContext.current
+        val openPage: (String) -> Unit = { url ->
+            runCatching {
+                context.startActivity(
+                    android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)),
+                )
+            }.onFailure {
+                android.widget.Toast
+                    .makeText(context, "Tidak bisa membuka halaman", android.widget.Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
         LoginHome(
             viewModel = viewModel,
             onLoggedIn = onLoggedIn,
             onPhone = { phoneMode = true },
+            onOpenTerms = { openPage(TERMS_URL) },
+            onOpenPrivacy = { openPage(PRIVACY_URL) },
         )
     }
 }
