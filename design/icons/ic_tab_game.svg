@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- VenderLive icon source. Edit here, then copy the path data back into
+     app/src/main/res/drawable/ic_tab_game.xml (or run tools/gen_assets.py). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <path d="M7,6h10a5,5 0 0,1 5,5v2a4,4 0 0,1 -7.2,2.4L14,14h-4l-0.8,1.4A4,4 0 0,1 2,13v-2a5,5 0 0,1 5,-5z" fill="#FFFFFF" />
+</svg>

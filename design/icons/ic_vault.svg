@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- VenderLive icon source. Edit here, then copy the path data back into
+     app/src/main/res/drawable/ic_vault.xml (or run tools/gen_assets.py). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <path d="M4,6h16a2,2 0 0,1 2,2v9a2,2 0 0,1 -2,2H4a2,2 0 0,1 -2,-2V8a2,2 0 0,1 2,-2zM12,10a3,3 0 1,0 0,6 3,3 0 0,0 0,-6zM3,3h18v2H3z" fill="#FFFFFF" />
+</svg>

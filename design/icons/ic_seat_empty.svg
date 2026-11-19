@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- VenderLive icon source. Edit here, then copy the path data back into
+     app/src/main/res/drawable/ic_seat_empty.xml (or run tools/gen_assets.py). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <path d="M24,3 a21,21 0 1,0 0.1,0 z" fill="#1A1526" stroke="#7C4DFF" stroke-width="2" stroke-linecap="round" fill="none" />
+  <path d="M24,26a4,4 0 0,0 4,-4v-6a4,4 0 0,0 -8,0v6a4,4 0 0,0 4,4z" fill="#7C4DFF" />
+  <path d="M30,21a6,6 0 0,1 -12,0H16a8,8 0 0,0 7,7.94V33h2v-4.06A8,8 0 0,0 32,21z" fill="#7C4DFF" />
+</svg>

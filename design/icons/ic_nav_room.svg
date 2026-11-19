@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- VenderLive icon source. Edit here, then copy the path data back into
+     app/src/main/res/drawable/ic_nav_room.xml (or run tools/gen_assets.py). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <path d="M4,4h6v6H4zM14,4h6v6h-6zM4,14h6v6H4zM14,14h6v6h-6z" fill="#FFFFFF" />
+</svg>
