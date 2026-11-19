@@ -246,6 +246,24 @@ private fun SeatGrid(seats: List<MicSeat>, mySeatIndex: Int?, onSeatClick: (MicS
 }
 
 @Composable
+/**
+ * Level chips live in ten-level tiers (ic_lv_0 .. ic_lv_100). A user's level maps to the
+ * nearest tier at or below it, so replacing the ic_lv_* files is enough to reskin them.
+ */
+private fun levelChipRes(level: Int): Int = when (level.coerceIn(0, 100) / 10 * 10) {
+    0 -> R.drawable.ic_lv_0
+    10 -> R.drawable.ic_lv_10
+    20 -> R.drawable.ic_lv_20
+    30 -> R.drawable.ic_lv_30
+    40 -> R.drawable.ic_lv_40
+    50 -> R.drawable.ic_lv_50
+    60 -> R.drawable.ic_lv_60
+    70 -> R.drawable.ic_lv_70
+    80 -> R.drawable.ic_lv_80
+    90 -> R.drawable.ic_lv_90
+    else -> R.drawable.ic_lv_100
+}
+
 private fun SeatView(
     seat: MicSeat,
     size: androidx.compose.ui.unit.Dp,
@@ -306,6 +324,17 @@ private fun SeatView(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .size(size * 0.28f),
+            )
+        }
+
+        if (seat.occupied) {
+            Image(
+                painter = painterResource(levelChipRes(seat.level)),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .width(size * 0.52f)
+                    .height(size * 0.52f / 2.9f),
             )
         }
 
