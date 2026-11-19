@@ -8,3 +8,6 @@ captures/
 .cxx/
 *.jks
 *.keystore
+
+# Fixed debug key (password "android") so every build can update the previous one.
+!keystore/debug.keystore
