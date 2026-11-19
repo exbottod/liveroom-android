@@ -22,16 +22,32 @@ android {
         applicationId = "com.venderlive.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.1.1"
+        versionCode = 3
+        versionName = "0.1.2"
 
         buildConfigField("String", "API_BASE_URL", "\"${prop("API_BASE_URL", "https://vender.43-156-99-4.sslip.io/")}\"")
         buildConfigField("String", "AGORA_APP_ID", "\"${prop("AGORA_APP_ID", "")}\"")
         buildConfigField("String", "WS_URL", "\"${prop("WS_URL", "wss://api.example.com/ws")}\"")
     }
 
+    // One fixed key for every build, so a new APK can always update the old one.
+    // v1 + v2 + v3 signing are all enabled: Android 7-9 phones (e.g. vivo Funtouch)
+    // verify the v1 (JAR) signature, so it must be present.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = rootProject.file("keystore/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+        }
+    }
+
     buildTypes {
         debug {
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
         }
         release {
