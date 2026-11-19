@@ -281,6 +281,7 @@ private fun levelChipRes(level: Int): Int = when (level.coerceIn(0, 100) / 10 * 
     else -> R.drawable.ic_lv_100
 }
 
+@Composable
 private fun SeatView(
     seat: MicSeat,
     size: androidx.compose.ui.unit.Dp,
