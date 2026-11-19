@@ -56,13 +56,12 @@ class DiagActivity : Activity() {
         }
 
         val scroller = ScrollView(this).apply { addView(output) }
-        val copy = Button(this).apply {
-            text = "Salin hasil"
-            setOnClickListener {
-                val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                cm.setPrimaryClip(ClipData.newPlainText("VenderLive uji", lines.toString()))
-                copy.text = "Tersalin"
-            }
+        val copy = Button(this)
+        copy.text = "Salin hasil"
+        copy.setOnClickListener {
+            val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            cm.setPrimaryClip(ClipData.newPlainText("VenderLive uji", lines.toString()))
+            copy.text = "Tersalin"
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
