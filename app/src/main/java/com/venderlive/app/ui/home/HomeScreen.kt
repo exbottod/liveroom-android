@@ -67,7 +67,7 @@ fun HomeScreen(
                 0 -> HomeFeed(onOpenRoom = onOpenRoom)
                 1 -> Placeholder("Permainan segera hadir")
                 2 -> Placeholder("Momen segera hadir")
-                3 -> Placeholder("Chat & antrean pesan")
+                3 -> MessagesScreen()
                 else -> ProfileScreen(
                     nickname = "user_" + userId.takeLast(6),
                     displayId = userId,
@@ -90,11 +90,19 @@ fun HomeScreen(
                     selected = tab == index,
                     onClick = { tab = index },
                     icon = {
-                        Icon(
-                            painter = painterResource(icon),
-                            contentDescription = label,
-                            modifier = Modifier.size(24.dp),
-                        )
+                        Box {
+                            Icon(
+                                painter = painterResource(icon),
+                                contentDescription = label,
+                                modifier = Modifier.size(24.dp),
+                            )
+                            if (index == 3 && unreadTotal() > 0) {
+                                UnreadDot(
+                                    unreadTotal(),
+                                    Modifier.align(Alignment.TopEnd).padding(start = 14.dp).size(16.dp),
+                                )
+                            }
+                        }
                     },
                     label = { Text(label, style = MaterialTheme.typography.labelSmall) },
                     colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
