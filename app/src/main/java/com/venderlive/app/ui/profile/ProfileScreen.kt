@@ -54,15 +54,15 @@ fun ProfileScreen(
     onLogout: () -> Unit,
 ) {
     val primaryMenu = listOf(
-        MenuItem(R.drawable.ic_menu_wallet, "Dompet"),
-        MenuItem(R.drawable.ic_menu_svip, "SVIP", "Buka kunci", dot = true),
-        MenuItem(R.drawable.ic_menu_noble, "Bangsawan", "Buka kunci"),
-        MenuItem(R.drawable.ic_menu_level, "Level"),
-        MenuItem(R.drawable.ic_menu_medal, "Medali"),
-        MenuItem(R.drawable.ic_menu_cp, "CP"),
-        MenuItem(R.drawable.ic_menu_relation, "Hubungan"),
-        MenuItem(R.drawable.ic_menu_family, "Keluarga", "Bergabunglah sekarang"),
-        MenuItem(R.drawable.ic_menu_guard, "Penjaga"),
+        MenuItem(R.drawable.ic_wallet, "Dompet"),
+        MenuItem(R.drawable.ic_svip, "SVIP", "Buka kunci", dot = true),
+        MenuItem(R.drawable.ic_noble, "Bangsawan", "Buka kunci"),
+        MenuItem(R.drawable.ic_level, "Level"),
+        MenuItem(R.drawable.ic_medal, "Medali"),
+        MenuItem(R.drawable.ic_cp, "CP"),
+        MenuItem(R.drawable.ic_relationship, "Hubungan"),
+        MenuItem(R.drawable.ic_family, "Keluarga", "Bergabunglah sekarang"),
+        MenuItem(R.drawable.ic_guard, "Penjaga"),
     )
 
     Box(
@@ -209,7 +209,7 @@ private fun MenuCard(items: List<MenuItem>, onClick: (String) -> Unit) {
                     Spacer(Modifier.width(6.dp))
                 }
                 Icon(
-                    painter = painterResource(R.drawable.ic_chevron_right),
+                    painter = painterResource(R.drawable.ic_arrow_right),
                     contentDescription = null,
                     tint = Color.Unspecified,
                     modifier = Modifier.size(18.dp),

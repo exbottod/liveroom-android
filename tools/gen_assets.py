@@ -176,26 +176,26 @@ def main():
     for name, px in DENSITIES.items():
         out = os.path.join(RES, f"drawable-{name}")
         os.makedirs(out, exist_ok=True)
-        for key, file in (("seat_empty", "seat_frame_empty"), ("seat_occupied", "seat_frame_occupied"),
-                          ("seat_locked", "seat_frame_locked")):
+        for key, file in (("seat_empty", "room_ic_mic_empty"), ("seat_occupied", "room_ic_mic_occupied"),
+                          ("seat_locked", "room_ic_mic_lock")):
             c1, c2, inner, gc, locked = CONFIG[key]
             _ring(px, c1, c2, inner, gc, locked).save(os.path.join(out, file + ".png"))
-        for key, file in (("seat_pk_red", "seat_frame_pk_red"), ("seat_pk_blue", "seat_frame_pk_blue"),
-                          ("seat_pk_winner", "seat_frame_pk_winner"),
-                          ("seat_speaking", "seat_frame_speaking")):
+        for key, file in (("seat_pk_red", "room_ic_mic_pk_red"), ("seat_pk_blue", "room_ic_mic_pk_blue"),
+                          ("seat_pk_winner", "room_ic_mic_pk_mvp"),
+                          ("seat_speaking", "room_ic_mic_speaking")):
             c1, c2, inner, gc, locked = CONFIG[key]
             badge = "pulse" if key == "seat_speaking" else None
             _ring(px, c1, c2, inner, gc, locked, 0.34, badge=badge).save(os.path.join(out, file + ".png"))
-        for key, file, badge in (("ring_host", "avatar_ring_host", None),
-                                 ("ring_noble", "avatar_ring_noble", None),
-                                 ("ring_guard", "avatar_ring_guard", None),
-                                 ("ring_cp", "avatar_ring_cp", "heart")):
+        for key, file, badge in (("ring_host", "room_ic_ring_owner", None),
+                                 ("ring_noble", "room_ic_ring_noble", None),
+                                 ("ring_guard", "room_ic_ring_guard", None),
+                                 ("ring_cp", "room_ic_mic_cp", "heart")):
             c1, c2 = CONFIG[key]
             _ring(px, c1, c2, (0, 0, 0, 0), (0, 0, 0), False, 0.28, glyph=False, badge=badge).save(
                 os.path.join(out, file + ".png"))
 
     for i, color in enumerate(CONFIG["levels"], start=1):
-        hexagon(216, color, i - 1).save(os.path.join(RES, "drawable-xxhdpi", f"level_badge_{i}.png"))
+        hexagon(216, color, i - 1).save(os.path.join(RES, "drawable-xxhdpi", f"ic_lv_{i}.png"))
 
     for name, px in LAUNCHER.items():
         out = os.path.join(RES, f"mipmap-{name}")
@@ -204,8 +204,8 @@ def main():
         launcher(px).save(os.path.join(out, "ic_launcher_round.png"))
 
     os.makedirs(os.path.join(RES, "drawable-nodpi"), exist_ok=True)
-    background("room_bg_source.png", "room_bg_default.webp", CONFIG["background_darken"])
-    background("login_bg_source.png", "login_bg.webp", 0.25)
+    background("room_bg_source.png", "bg_room_default.webp", CONFIG["background_darken"])
+    background("login_bg_source.png", "bg_login.webp", 0.25)
     print("assets regenerated")
 
 

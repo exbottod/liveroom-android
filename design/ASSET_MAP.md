@@ -6,22 +6,23 @@ them are used in this project. This file tracks which slot each screen needs, an
 which VenderLive file already covers it.
 
 Rule: slots are rebuilt from scratch. The reference is a checklist of what a
-screen needs, never a source of pixels.
+screen needs, never a source of pixels. File names follow the reference layout so
+slots are easy to recognise, but every pixel is ours.
 
 ## Covered by our own files
 
 | Slot | VenderLive file |
 | --- | --- |
-| Mic on / muted | res/drawable/ic_mic_on.xml, ic_mic_mute.xml |
-| Seat empty / occupied / locked | res/drawable-*dpi/seat_frame_empty.png, seat_frame_occupied.png, seat_frame_locked.png |
+| Mic on / muted | res/drawable/room_ic_bottom_mic_un_mute.xml, room_ic_bottom_mic_mute.xml |
+| Seat empty / occupied / locked | res/drawable-*dpi/room_ic_mic_empty.png, room_ic_mic_occupied.png, room_ic_mic_lock.png |
 | Host / noble / guard ring | res/drawable-*dpi/avatar_ring_host.png, avatar_ring_noble.png, avatar_ring_guard.png |
-| Level badge 1-10 | res/drawable-xxhdpi/level_badge_1.png .. level_badge_10.png |
-| Coin / diamond | res/drawable-xxhdpi/coin_icon.png, diamond_icon.png |
-| Gift slot | res/drawable-xxhdpi/gift_placeholder.png |
-| Bottom tabs | res/drawable/ic_tab_home, ic_tab_game, ic_tab_moment, ic_tab_message, ic_tab_me |
-| Profile menu | res/drawable/ic_menu_wallet, ic_menu_svip, ic_menu_noble, ic_menu_level, ic_menu_medal, ic_menu_cp, ic_menu_relation, ic_menu_family, ic_menu_guard |
+| Level badge 1-10 | res/drawable-xxhdpi/ic_lv_1.png .. ic_lv_10.png |
+| Coin / diamond | res/drawable-xxhdpi/ic_coin_big.png, ic_diamond_big.png |
+| Gift slot | res/drawable-xxhdpi/ic_gift.png |
+| Bottom tabs | res/drawable/home_ic_tab_home, home_ic_tab_game, home_ic_tab_moment, home_ic_tab_msg, home_ic_tab_mine |
+| Profile menu | res/drawable/ic_wallet, ic_svip, ic_noble, ic_level, ic_medal, ic_cp, ic_relationship, ic_family, ic_guard |
 | Room chrome | res/drawable/ic_rocket, ic_vault, ic_game, ic_gift, ic_volume, ic_chat, ic_emoji, ic_grid_menu, ic_power, ic_trophy, ic_crown, ic_chevron_right |
-| Backgrounds | res/drawable-nodpi/room_bg_default.webp, login_bg.webp |
+| Backgrounds | res/drawable-nodpi/bg_room_default.webp, bg_login.webp |
 | Launcher | res/mipmap-*/ic_launcher.png, ic_launcher_round.png |
 
 ## Still to build (by screen, counted from the reference)

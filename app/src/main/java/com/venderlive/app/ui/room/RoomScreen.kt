@@ -77,7 +77,7 @@ fun RoomContent(
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(R.drawable.room_bg_default),
+            painter = painterResource(R.drawable.bg_room_default),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
@@ -156,16 +156,16 @@ private fun RoomHeader(state: RoomUiState, onExit: () -> Unit, modifier: Modifie
 
             Spacer(Modifier.weight(1f))
 
-            HeaderIcon(R.drawable.ic_grid_menu)
-            HeaderIcon(R.drawable.ic_rocket)
-            HeaderIcon(R.drawable.ic_power, onClick = onExit)
+            HeaderIcon(R.drawable.room_ic_grid_menu)
+            HeaderIcon(R.drawable.room_ic_rocket)
+            HeaderIcon(R.drawable.room_ic_power, onClick = onExit)
         }
 
         Spacer(Modifier.height(6.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                painter = painterResource(R.drawable.ic_trophy),
+                painter = painterResource(R.drawable.room_ic_trophy),
                 contentDescription = null,
                 tint = Color(0xFFFFC454),
                 modifier = Modifier.size(16.dp),
@@ -202,7 +202,7 @@ private fun HostRow(state: RoomUiState, onSeatClick: (MicSeat) -> Unit) {
             SeatView(
                 seat = state.hostSeat,
                 size = HostSize,
-                ringRes = R.drawable.avatar_ring_host,
+                ringRes = R.drawable.room_ic_ring_owner,
                 onClick = { onSeatClick(state.hostSeat) },
             )
         }
@@ -254,17 +254,17 @@ private fun SeatView(
     onClick: () -> Unit,
 ) {
     val frame = when {
-        seat.speaking -> R.drawable.seat_frame_speaking
-        seat.pkTeam == PkTeam.RED -> R.drawable.seat_frame_pk_red
-        seat.pkTeam == PkTeam.BLUE -> R.drawable.seat_frame_pk_blue
-        seat.pkTeam == PkTeam.WINNER -> R.drawable.seat_frame_pk_winner
-        seat.locked -> R.drawable.seat_frame_locked
-        seat.occupied -> R.drawable.seat_frame_occupied
-        else -> R.drawable.seat_frame_empty
+        seat.speaking -> R.drawable.room_ic_mic_speaking
+        seat.pkTeam == PkTeam.RED -> R.drawable.room_ic_mic_pk_red
+        seat.pkTeam == PkTeam.BLUE -> R.drawable.room_ic_mic_pk_blue
+        seat.pkTeam == PkTeam.WINNER -> R.drawable.room_ic_mic_pk_mvp
+        seat.locked -> R.drawable.room_ic_mic_lock
+        seat.occupied -> R.drawable.room_ic_mic_occupied
+        else -> R.drawable.room_ic_mic_empty
     }
 
     val effectiveRing = when {
-        seat.cp -> R.drawable.avatar_ring_cp
+        seat.cp -> R.drawable.room_ic_mic_cp
         else -> ringRes
     }
 
@@ -291,7 +291,7 @@ private fun SeatView(
             AvatarBubble(label = seat.nickname.orEmpty(), size = size * 0.62f, speaking = seat.speaking)
         } else if (!seat.locked) {
             Icon(
-                painter = painterResource(R.drawable.ic_mic_on),
+                painter = painterResource(R.drawable.room_ic_bottom_mic_un_mute),
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.45f),
                 modifier = Modifier.size(size * 0.34f),
@@ -300,7 +300,7 @@ private fun SeatView(
 
         if (seat.isHost) {
             Icon(
-                painter = painterResource(R.drawable.ic_crown),
+                painter = painterResource(R.drawable.room_ic_crown),
                 contentDescription = null,
                 tint = Color(0xFFFFC454),
                 modifier = Modifier
@@ -319,7 +319,7 @@ private fun SeatView(
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_mic_mute),
+                    painter = painterResource(R.drawable.room_ic_bottom_mic_mute),
                     contentDescription = null,
                     tint = Color.White.copy(alpha = 0.7f),
                     modifier = Modifier.size(size * 0.2f),
@@ -452,9 +452,9 @@ private fun AnnouncementBar(text: String, modifier: Modifier = Modifier) {
 @Composable
 private fun SideRail(modifier: Modifier = Modifier) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        RailButton(R.drawable.ic_rocket)
-        RailButton(R.drawable.ic_vault)
-        RailButton(R.drawable.ic_game)
+        RailButton(R.drawable.room_ic_rocket)
+        RailButton(R.drawable.room_ic_vault)
+        RailButton(R.drawable.room_ic_game)
     }
 }
 
@@ -492,17 +492,17 @@ private fun RoomBottomBar(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         BottomAction(
-            icon = R.drawable.ic_volume,
+            icon = R.drawable.room_ic_volume,
             tint = if (state.speakerOn) Color.White else Color.White.copy(alpha = 0.4f),
             onClick = onToggleSpeaker,
         )
         BottomAction(
-            icon = if (state.muted) R.drawable.ic_mic_mute else R.drawable.ic_mic_on,
+            icon = if (state.muted) R.drawable.room_ic_bottom_mic_mute else R.drawable.room_ic_bottom_mic_un_mute,
             tint = if (state.muted) BrandAccent else Color.White,
             onClick = onToggleMic,
         )
-        BottomAction(icon = R.drawable.ic_chat)
-        BottomAction(icon = R.drawable.ic_emoji)
+        BottomAction(icon = R.drawable.room_ic_chat)
+        BottomAction(icon = R.drawable.room_ic_emoji)
         Box(contentAlignment = Alignment.TopEnd) {
             BottomAction(icon = R.drawable.ic_nav_message)
             if (state.unreadCount > 0) {
@@ -517,7 +517,7 @@ private fun RoomBottomBar(
                 }
             }
         }
-        BottomAction(icon = R.drawable.ic_grid_menu)
+        BottomAction(icon = R.drawable.room_ic_grid_menu)
         Box(
             modifier = Modifier
                 .size(46.dp)
@@ -526,7 +526,7 @@ private fun RoomBottomBar(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                painter = painterResource(R.drawable.ic_gift),
+                painter = painterResource(R.drawable.room_ic_gift),
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(24.dp),

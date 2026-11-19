@@ -49,11 +49,11 @@ fun HomeScreen(
 ) {
     var tab by remember { mutableStateOf(0) }
     val tabs = listOf(
-        "Beranda" to R.drawable.ic_tab_home,
-        "Permainan" to R.drawable.ic_tab_game,
-        "Momen" to R.drawable.ic_tab_moment,
-        "Pesan" to R.drawable.ic_tab_message,
-        "Aku" to R.drawable.ic_tab_me,
+        "Beranda" to R.drawable.home_ic_tab_home,
+        "Permainan" to R.drawable.home_ic_tab_game,
+        "Momen" to R.drawable.home_ic_tab_moment,
+        "Pesan" to R.drawable.home_ic_tab_msg,
+        "Aku" to R.drawable.home_ic_tab_mine,
     )
 
     Column(
