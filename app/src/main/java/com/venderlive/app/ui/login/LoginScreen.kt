@@ -117,11 +117,17 @@ private fun PhoneLoginScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(R.drawable.bg_login),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    androidx.compose.ui.graphics.Brush.verticalGradient(
+                        listOf(
+                            androidx.compose.ui.graphics.Color(0xFFF1FBFA),
+                            androidx.compose.ui.graphics.Color(0xFFFFFFFF),
+                        ),
+                    ),
+                ),
         )
         Box(
             modifier = Modifier
