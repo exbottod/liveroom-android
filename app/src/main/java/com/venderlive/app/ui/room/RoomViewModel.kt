@@ -2,6 +2,7 @@ package com.venderlive.app.ui.room
 
 import androidx.lifecycle.ViewModel
 import com.venderlive.app.data.model.MicSeat
+import com.venderlive.app.data.model.PkTeam
 import com.venderlive.app.data.model.RoomTab
 import com.venderlive.app.data.model.RoomUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,10 +26,11 @@ class RoomViewModel(roomId: String = "1") : ViewModel() {
             hostSeat = MicSeat(index = 0, userId = "host", nickname = "BANG EX", level = 12, isHost = true),
             seats = (1..12).map { i ->
                 when (i) {
-                    1 -> MicSeat(index = 1, userId = "u1", nickname = "Vivi", level = 3)
-                    2 -> MicSeat(index = 2, userId = "u2", nickname = "Rian", level = 1, muted = true)
+                    1 -> MicSeat(index = 1, userId = "u1", nickname = "Vivi", level = 3, pkTeam = PkTeam.RED)
+                    2 -> MicSeat(index = 2, userId = "u2", nickname = "Rian", level = 1, muted = true, pkTeam = PkTeam.BLUE)
                     5 -> MicSeat(index = 5, locked = true)
                     7 -> MicSeat(index = 7, userId = "u3", nickname = "Sari", level = 5, speaking = true)
+                    3 -> MicSeat(index = 3, userId = "u4", nickname = "Dewi", level = 4, cp = true)
                     else -> MicSeat(index = i)
                 }
             },

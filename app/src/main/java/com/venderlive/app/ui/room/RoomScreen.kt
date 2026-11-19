@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.venderlive.app.R
 import com.venderlive.app.data.model.MicSeat
+import com.venderlive.app.data.model.PkTeam
 import com.venderlive.app.data.model.RoomTab
 import com.venderlive.app.data.model.RoomUiState
 import com.venderlive.app.ui.theme.BrandAccent
@@ -253,9 +254,18 @@ private fun SeatView(
     onClick: () -> Unit,
 ) {
     val frame = when {
+        seat.speaking -> R.drawable.seat_frame_speaking
+        seat.pkTeam == PkTeam.RED -> R.drawable.seat_frame_pk_red
+        seat.pkTeam == PkTeam.BLUE -> R.drawable.seat_frame_pk_blue
+        seat.pkTeam == PkTeam.WINNER -> R.drawable.seat_frame_pk_winner
         seat.locked -> R.drawable.seat_frame_locked
         seat.occupied -> R.drawable.seat_frame_occupied
         else -> R.drawable.seat_frame_empty
+    }
+
+    val effectiveRing = when {
+        seat.cp -> R.drawable.avatar_ring_cp
+        else -> ringRes
     }
 
     Box(
@@ -269,9 +279,9 @@ private fun SeatView(
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
         )
-        if (ringRes != null) {
+        if (effectiveRing != null) {
             Image(
-                painter = painterResource(ringRes),
+                painter = painterResource(effectiveRing),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
             )

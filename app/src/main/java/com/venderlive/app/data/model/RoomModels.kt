@@ -1,5 +1,8 @@
 package com.venderlive.app.data.model
 
+/** PK teams: a room can run a two-team battle, plus a round winner highlight. */
+enum class PkTeam { RED, BLUE, WINNER }
+
 /** One mic seat in an audio room. [index] is 1-based and doubles as the RTC uid. */
 data class MicSeat(
     val index: Int,
@@ -10,6 +13,8 @@ data class MicSeat(
     val locked: Boolean = false,
     val speaking: Boolean = false,
     val isHost: Boolean = false,
+    val cp: Boolean = false,
+    val pkTeam: PkTeam? = null,
 ) {
     val occupied: Boolean get() = userId != null
 }

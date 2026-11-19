@@ -23,7 +23,14 @@ CONFIG = {
     "seat_empty": ((110, 66, 240), (170, 120, 255), (28, 22, 42, 238), (235, 228, 255), False),
     "seat_occupied": ((255, 77, 141), (255, 170, 205), (52, 26, 58, 240), (255, 226, 238), False),
     "seat_locked": ((104, 100, 120), (150, 146, 168), (30, 27, 40, 232), (198, 194, 210), True),
+    # PK room seats: two teams plus the round winner
+    "seat_pk_red": ((255, 61, 87), (255, 156, 120), (48, 18, 24, 240), (255, 214, 214), False),
+    "seat_pk_blue": ((61, 107, 255), (89, 211, 255), (18, 28, 52, 240), (214, 235, 255), False),
+    "seat_pk_winner": ((255, 214, 120), (255, 244, 200), (46, 36, 14, 240), (255, 250, 235), False),
+    # speaking indicator ring
+    "seat_speaking": ((255, 77, 141), (124, 77, 255), (34, 20, 44, 238), (255, 255, 255), False),
     # avatar rings
+    "ring_cp": ((255, 105, 180), (90, 220, 255)),
     "ring_host": ((255, 196, 84), (255, 236, 180)),
     "ring_noble": ((190, 150, 255), (120, 77, 255)),
     "ring_guard": ((90, 214, 255), (40, 150, 255)),
@@ -43,7 +50,7 @@ def _lerp(a, b, t):
     return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
 
-def _ring(size, c1, c2, inner, glyph_color, locked=False, glow=0.28, glyph=True):
+def _ring(size, c1, c2, inner, glyph_color, locked=False, glow=0.28, glyph=True, badge=None):
     ss = 4
     s = size * ss
     im = Image.new("RGBA", (s, s), (0, 0, 0, 0))
@@ -89,6 +96,22 @@ def _ring(size, c1, c2, inner, glyph_color, locked=False, glow=0.28, glyph=True)
         d.rounded_rectangle([cx - bw, ly - bh // 2, cx + bw, ly + bh], radius=int(s * 0.018), fill=glyph_color)
         d.arc([cx - int(s * 0.06), ly - int(s * 0.135), cx + int(s * 0.06), ly - int(s * 0.005)],
               start=180, end=360, fill=glyph_color, width=int(s * 0.03))
+    if badge == "heart":
+        # CP badge: small heart on the lower right of the ring
+        hs = s * 0.20
+        hx = cx + s * 0.30
+        hy = cy + s * 0.28
+        d.ellipse([hx - hs * 0.5, hy - hs * 0.55, hx + hs * 0.02, hy + hs * 0.0], fill=(255, 105, 180))
+        d.ellipse([hx - hs * 0.02, hy - hs * 0.55, hx + hs * 0.5, hy + hs * 0.0], fill=(255, 105, 180))
+        d.polygon([(hx - hs * 0.48, hy - hs * 0.16), (hx + hs * 0.48, hy - hs * 0.16), (hx, hy + hs * 0.5)],
+                  fill=(255, 105, 180))
+    if badge == "pulse":
+        # speaking indicator: three arcs around the top
+        for k, rr in enumerate((0.50, 0.57, 0.64)):
+            alpha = 210 - k * 55
+            rr_px = s * rr
+            d.arc([cx - rr_px, cy - rr_px, cx + rr_px, cy + rr_px], start=-60, end=60,
+                  fill=(255, 255, 255, alpha), width=int(s * 0.02))
     return im.resize((size, size), Image.LANCZOS)
 
 
@@ -157,10 +180,18 @@ def main():
                           ("seat_locked", "seat_frame_locked")):
             c1, c2, inner, gc, locked = CONFIG[key]
             _ring(px, c1, c2, inner, gc, locked).save(os.path.join(out, file + ".png"))
-        for key, file in (("ring_host", "avatar_ring_host"), ("ring_noble", "avatar_ring_noble"),
-                          ("ring_guard", "avatar_ring_guard")):
+        for key, file in (("seat_pk_red", "seat_frame_pk_red"), ("seat_pk_blue", "seat_frame_pk_blue"),
+                          ("seat_pk_winner", "seat_frame_pk_winner"),
+                          ("seat_speaking", "seat_frame_speaking")):
+            c1, c2, inner, gc, locked = CONFIG[key]
+            badge = "pulse" if key == "seat_speaking" else None
+            _ring(px, c1, c2, inner, gc, locked, 0.34, badge=badge).save(os.path.join(out, file + ".png"))
+        for key, file, badge in (("ring_host", "avatar_ring_host", None),
+                                 ("ring_noble", "avatar_ring_noble", None),
+                                 ("ring_guard", "avatar_ring_guard", None),
+                                 ("ring_cp", "avatar_ring_cp", "heart")):
             c1, c2 = CONFIG[key]
-            _ring(px, c1, c2, (0, 0, 0, 0), (0, 0, 0), False, 0.28, glyph=False).save(
+            _ring(px, c1, c2, (0, 0, 0, 0), (0, 0, 0), False, 0.28, glyph=False, badge=badge).save(
                 os.path.join(out, file + ".png"))
 
     for i, color in enumerate(CONFIG["levels"], start=1):
