@@ -25,7 +25,7 @@ android {
         versionCode = 1
         versionName = "0.1.0"
 
-        buildConfigField("String", "API_BASE_URL", "\"${prop("API_BASE_URL", "https://api.example.com/")}\"")
+        buildConfigField("String", "API_BASE_URL", "\"${prop("API_BASE_URL", "https://vender.43-156-99-4.sslip.io/")}\"")
         buildConfigField("String", "AGORA_APP_ID", "\"${prop("AGORA_APP_ID", "")}\"")
         buildConfigField("String", "WS_URL", "\"${prop("WS_URL", "wss://api.example.com/ws")}\"")
     }
