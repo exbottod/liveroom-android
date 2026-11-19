@@ -71,3 +71,19 @@ session authority.
    mute, kick, lock
 4. Agora RTC join with `uid = seat index`, token minted by our backend
 5. Room events over our WebSocket (`WS_URL`), not a third-party IM SDK
+
+## Signing fingerprints (Firebase phone auth)
+
+The shared debug keystore lives at `keystore/debug.keystore`
+(alias `androiddebugkey`, store and key password `android`). Copy it to
+`~/.android/debug.keystore` so local debug builds match these fingerprints:
+
+```
+SHA-1:   CD:47:62:41:75:42:78:72:D2:5A:06:06:B7:72:D5:23:91:A3:DF:69
+SHA-256: 95:CC:4F:BA:3D:BB:A5:BB:2F:EE:48:8D:95:37:F5:17:A0:30:91:23:0F:87:33:C9:37:A3:A0:0D:25:8D:41:D6
+```
+
+Add both to Firebase Console > Project settings > Your apps > com.venderlive.app
+> Add fingerprint. Debug key only; a separate release keystore with its own
+password is required for Play Store uploads, and its fingerprints must be added
+to Firebase as well.
