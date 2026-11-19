@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
                 context = this,
                 report = report,
                 canOpenApp = true,
-                onOpen = { openApp() },
+                onOpen = { openCompose() },
                 onClear = { recreate() },
             ),
         )
