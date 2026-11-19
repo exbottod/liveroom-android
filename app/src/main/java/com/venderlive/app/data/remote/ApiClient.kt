@@ -1,7 +1,7 @@
-package com.exbottod.liveroom.data.remote
+package com.venderlive.app.data.remote
 
-import com.exbottod.liveroom.BuildConfig
-import com.exbottod.liveroom.data.local.SessionStore
+import com.venderlive.app.BuildConfig
+import com.venderlive.app.data.local.SessionStore
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

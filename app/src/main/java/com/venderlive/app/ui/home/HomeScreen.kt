@@ -1,4 +1,4 @@
-package com.exbottod.liveroom.ui.home
+package com.venderlive.app.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,8 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.exbottod.liveroom.ui.theme.BrandAccent
-import com.exbottod.liveroom.ui.theme.SurfaceCard
+import com.venderlive.app.ui.theme.BrandAccent
+import com.venderlive.app.ui.theme.SurfaceCard
 
 /**
  * Phase 1 skeleton: room list placeholder + bottom navigation.

@@ -1,9 +1,9 @@
-package com.exbottod.liveroom
+package com.venderlive.app
 
 import android.app.Application
-import com.exbottod.liveroom.data.local.SessionStore
-import com.exbottod.liveroom.data.remote.ApiClient
-import com.exbottod.liveroom.data.repository.AuthRepository
+import com.venderlive.app.data.local.SessionStore
+import com.venderlive.app.data.remote.ApiClient
+import com.venderlive.app.data.repository.AuthRepository
 
 class App : Application() {
 

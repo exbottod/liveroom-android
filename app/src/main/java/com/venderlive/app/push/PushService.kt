@@ -1,4 +1,4 @@
-package com.exbottod.liveroom.push
+package com.venderlive.app.push
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage

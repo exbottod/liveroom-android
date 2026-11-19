@@ -1,9 +1,9 @@
-package com.exbottod.liveroom.data.remote
+package com.venderlive.app.data.remote
 
-import com.exbottod.liveroom.data.model.ApiEnvelope
-import com.exbottod.liveroom.data.model.AuthResult
-import com.exbottod.liveroom.data.model.FirebaseLoginRequest
-import com.exbottod.liveroom.data.model.UserProfile
+import com.venderlive.app.data.model.ApiEnvelope
+import com.venderlive.app.data.model.AuthResult
+import com.venderlive.app.data.model.FirebaseLoginRequest
+import com.venderlive.app.data.model.UserProfile
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

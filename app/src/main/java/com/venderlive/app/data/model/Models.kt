@@ -1,4 +1,4 @@
-package com.exbottod.liveroom.data.model
+package com.venderlive.app.data.model
 
 import com.google.gson.annotations.SerializedName
 

@@ -1,9 +1,9 @@
-package com.exbottod.liveroom.ui.login
+package com.venderlive.app.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.exbottod.liveroom.data.model.AuthResult
-import com.exbottod.liveroom.data.repository.AuthRepository
+import com.venderlive.app.data.model.AuthResult
+import com.venderlive.app.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

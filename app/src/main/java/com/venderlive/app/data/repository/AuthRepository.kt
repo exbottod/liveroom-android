@@ -1,9 +1,9 @@
-package com.exbottod.liveroom.data.repository
+package com.venderlive.app.data.repository
 
-import com.exbottod.liveroom.data.local.SessionStore
-import com.exbottod.liveroom.data.model.AuthResult
-import com.exbottod.liveroom.data.model.FirebaseLoginRequest
-import com.exbottod.liveroom.data.remote.ApiService
+import com.venderlive.app.data.local.SessionStore
+import com.venderlive.app.data.model.AuthResult
+import com.venderlive.app.data.model.FirebaseLoginRequest
+import com.venderlive.app.data.remote.ApiService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.tasks.await

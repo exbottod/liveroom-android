@@ -1,4 +1,4 @@
-package com.exbottod.liveroom.ui.login
+package com.venderlive.app.ui.login
 
 import android.app.Activity
 import androidx.compose.foundation.background
@@ -45,10 +45,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.exbottod.liveroom.data.model.AuthResult
-import com.exbottod.liveroom.ui.theme.BrandAccent
-import com.exbottod.liveroom.ui.theme.BrandPrimary
-import com.exbottod.liveroom.ui.theme.SurfaceDark
+import com.venderlive.app.data.model.AuthResult
+import com.venderlive.app.ui.theme.BrandAccent
+import com.venderlive.app.ui.theme.BrandPrimary
+import com.venderlive.app.ui.theme.SurfaceDark
 
 @Composable
 fun LoginScreen(
@@ -77,7 +77,7 @@ fun LoginScreen(
             Spacer(Modifier.height(40.dp))
 
             Text(
-                text = "LiveRoom",
+                text = "VenderLive",
                 style = MaterialTheme.typography.headlineLarge,
                 color = BrandAccent,
             )

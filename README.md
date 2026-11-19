@@ -1,4 +1,4 @@
-# LiveRoom (Android)
+# VenderLive (Android)
 
 Native Android (Kotlin + Jetpack Compose) audio room app. Phase 1 covers the
 login flow and the app shell. All third-party services are our own accounts:
@@ -17,7 +17,7 @@ or code from any other app are used.
 ## Project layout
 
 ```
-app/src/main/java/com/exbottod/liveroom/
+app/src/main/java/com/exbottod/venderlive/
   App.kt                  manual dependency wiring
   MainActivity.kt         Compose host
   data/model              API DTOs
@@ -37,7 +37,7 @@ app/src/main/java/com/exbottod/liveroom/
    `API_BASE_URL`, `WS_URL`, `AGORA_APP_ID`.
 2. Copy `app/google-services.json.example` to `app/google-services.json` and
    replace it with the real file from our Firebase project
-   (package name must be `com.exbottod.liveroom`).
+   (package name must be `com.venderlive.app`).
 3. Firebase console: enable Phone sign-in, add SHA-1 + SHA-256 of the signing
    key (needed for auto-verification).
 4. Backend must expose `POST /v1/auth/firebase-login` and `GET /v1/me`.

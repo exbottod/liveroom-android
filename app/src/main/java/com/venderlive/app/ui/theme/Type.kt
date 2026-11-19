@@ -1,4 +1,4 @@
-package com.exbottod.liveroom.ui.theme
+package com.venderlive.app.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

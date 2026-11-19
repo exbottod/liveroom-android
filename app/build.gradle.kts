@@ -15,11 +15,11 @@ fun prop(key: String, fallback: String): String =
     (localProps.getProperty(key) ?: System.getenv(key) ?: fallback)
 
 android {
-    namespace = "com.exbottod.liveroom"
+    namespace = "com.venderlive.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.exbottod.liveroom"
+        applicationId = "com.venderlive.app"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

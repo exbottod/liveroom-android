@@ -1,4 +1,4 @@
-package com.exbottod.liveroom.navigation
+package com.venderlive.app.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -7,10 +7,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.exbottod.liveroom.App
-import com.exbottod.liveroom.ui.home.HomeScreen
-import com.exbottod.liveroom.ui.login.LoginScreen
-import com.exbottod.liveroom.ui.login.LoginViewModel
+import com.venderlive.app.App
+import com.venderlive.app.ui.home.HomeScreen
+import com.venderlive.app.ui.login.LoginScreen
+import com.venderlive.app.ui.login.LoginViewModel
 import kotlinx.coroutines.launch
 
 private object Route {

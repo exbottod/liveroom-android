@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "LiveRoom"
+rootProject.name = "VenderLive"
 include(":app")
