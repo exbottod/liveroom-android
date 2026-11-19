@@ -309,9 +309,9 @@ private fun SeatView(
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_mic_on),
+                    painter = painterResource(R.drawable.ic_mic_mute),
                     contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.5f),
+                    tint = Color.White.copy(alpha = 0.7f),
                     modifier = Modifier.size(size * 0.2f),
                 )
             }
@@ -487,7 +487,7 @@ private fun RoomBottomBar(
             onClick = onToggleSpeaker,
         )
         BottomAction(
-            icon = R.drawable.ic_mic_on,
+            icon = if (state.muted) R.drawable.ic_mic_mute else R.drawable.ic_mic_on,
             tint = if (state.muted) BrandAccent else Color.White,
             onClick = onToggleMic,
         )
