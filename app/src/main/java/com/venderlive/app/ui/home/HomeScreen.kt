@@ -1,5 +1,7 @@
 package com.venderlive.app.ui.home
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +29,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
+import com.venderlive.app.R
+import com.venderlive.app.ui.profile.ProfileScreen
+import com.venderlive.app.ui.profile.ProfileStats
 import com.venderlive.app.ui.theme.BrandAccent
 import com.venderlive.app.ui.theme.SurfaceCard
 
@@ -38,9 +45,16 @@ import com.venderlive.app.ui.theme.SurfaceCard
 fun HomeScreen(
     userId: String,
     onLogout: () -> Unit,
+    onOpenRoom: (String) -> Unit = {},
 ) {
     var tab by remember { mutableStateOf(0) }
-    val tabs = listOf("Room", "Pesan", "Saya")
+    val tabs = listOf(
+        "Beranda" to R.drawable.ic_tab_home,
+        "Permainan" to R.drawable.ic_tab_game,
+        "Momen" to R.drawable.ic_tab_moment,
+        "Pesan" to R.drawable.ic_tab_message,
+        "Aku" to R.drawable.ic_tab_me,
+    )
 
     Column(
         modifier = Modifier
@@ -49,19 +63,32 @@ fun HomeScreen(
     ) {
         Box(modifier = Modifier.weight(1f)) {
             when (tab) {
-                0 -> RoomListPlaceholder()
-                1 -> Placeholder("Chat & antrean pesan")
-                else -> ProfilePlaceholder(userId, onLogout)
+                0 -> RoomListPlaceholder(onOpenRoom)
+                1 -> Placeholder("Permainan segera hadir")
+                2 -> Placeholder("Momen segera hadir")
+                3 -> Placeholder("Chat & antrean pesan")
+                else -> ProfileScreen(
+                    nickname = "user_" + userId.takeLast(6),
+                    displayId = userId,
+                    stats = ProfileStats(),
+                    onLogout = onLogout,
+                )
             }
         }
 
         NavigationBar(containerColor = SurfaceCard) {
-            tabs.forEachIndexed { index, label ->
+            tabs.forEachIndexed { index, (label, icon) ->
                 NavigationBarItem(
                     selected = tab == index,
                     onClick = { tab = index },
-                    icon = { Text(label.take(1), color = BrandAccent, fontWeight = FontWeight.Bold) },
-                    label = { Text(label) },
+                    icon = {
+                        Icon(
+                            painter = painterResource(icon),
+                            contentDescription = label,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    },
+                    label = { Text(label, style = MaterialTheme.typography.labelSmall) },
                 )
             }
         }
@@ -69,7 +96,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun RoomListPlaceholder() {
+private fun RoomListPlaceholder(onOpenRoom: (String) -> Unit) {
     val demoRooms = listOf(
         "Room Santai Malam" to "12/8 seat",
         "Ngobrol Bareng" to "5/8 seat",
@@ -84,6 +111,7 @@ private fun RoomListPlaceholder() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(SurfaceCard, RoundedCornerShape(16.dp))
+                        .clickable { onOpenRoom(name) }
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {

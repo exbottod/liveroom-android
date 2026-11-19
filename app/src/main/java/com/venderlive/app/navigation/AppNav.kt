@@ -11,11 +11,14 @@ import com.venderlive.app.App
 import com.venderlive.app.ui.home.HomeScreen
 import com.venderlive.app.ui.login.LoginScreen
 import com.venderlive.app.ui.login.LoginViewModel
+import com.venderlive.app.ui.room.RoomScreen
+import com.venderlive.app.ui.room.RoomViewModel
 import kotlinx.coroutines.launch
 
 private object Route {
     const val LOGIN = "login"
     const val HOME = "home"
+    const val ROOM = "room/{roomId}"
 }
 
 @Composable
@@ -48,6 +51,7 @@ fun AppNav() {
 
             HomeScreen(
                 userId = userId,
+                onOpenRoom = { id -> navController.navigate("room/$id") },
                 onLogout = {
                     scope.launch {
                         app.authRepository.logout()
@@ -57,6 +61,12 @@ fun AppNav() {
                     }
                 },
             )
+        }
+
+        composable(Route.ROOM) { entry ->
+            val roomId = entry.arguments?.getString("roomId").orEmpty()
+            val vm: RoomViewModel = viewModel { RoomViewModel(roomId) }
+            RoomScreen(viewModel = vm, onExit = { navController.popBackStack() })
         }
     }
 }
