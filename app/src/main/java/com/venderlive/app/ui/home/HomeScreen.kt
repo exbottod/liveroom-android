@@ -48,6 +48,7 @@ fun HomeScreen(
     onOpenRoom: (String) -> Unit = {},
 ) {
     var tab by remember { mutableStateOf(0) }
+    var showCheckIn by remember { mutableStateOf(true) }
     val tabs = listOf(
         "Beranda" to R.drawable.home_ic_tab_home,
         "Permainan" to R.drawable.home_ic_tab_game,
@@ -63,7 +64,7 @@ fun HomeScreen(
     ) {
         Box(modifier = Modifier.weight(1f)) {
             when (tab) {
-                0 -> RoomListPlaceholder(onOpenRoom)
+                0 -> HomeFeed(onOpenRoom = onOpenRoom)
                 1 -> Placeholder("Permainan segera hadir")
                 2 -> Placeholder("Momen segera hadir")
                 3 -> Placeholder("Chat & antrean pesan")
@@ -76,7 +77,14 @@ fun HomeScreen(
             }
         }
 
-        NavigationBar(containerColor = SurfaceCard) {
+        if (showCheckIn) {
+            DailyCheckInDialog(
+                onClaim = { showCheckIn = false },
+                onDismiss = { showCheckIn = false },
+            )
+        }
+
+        NavigationBar(containerColor = androidx.compose.ui.graphics.Color.White) {
             tabs.forEachIndexed { index, (label, icon) ->
                 NavigationBarItem(
                     selected = tab == index,
@@ -89,6 +97,13 @@ fun HomeScreen(
                         )
                     },
                     label = { Text(label, style = MaterialTheme.typography.labelSmall) },
+                    colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
+                        selectedIconColor = androidx.compose.ui.graphics.Color(0xFF2FD3B4),
+                        selectedTextColor = androidx.compose.ui.graphics.Color(0xFF2A2A33),
+                        unselectedIconColor = androidx.compose.ui.graphics.Color(0xFFC9C9D2),
+                        unselectedTextColor = androidx.compose.ui.graphics.Color(0xFFC9C9D2),
+                        indicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                    ),
                 )
             }
         }
