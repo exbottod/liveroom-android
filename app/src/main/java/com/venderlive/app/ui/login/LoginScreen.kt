@@ -1,6 +1,7 @@
 package com.venderlive.app.ui.login
 
 import android.app.Activity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.venderlive.app.R
 import com.venderlive.app.data.model.AuthResult
 import com.venderlive.app.ui.theme.BrandAccent
 import com.venderlive.app.ui.theme.BrandPrimary
@@ -62,11 +66,18 @@ fun LoginScreen(
         state.loggedIn?.let(onLoggedIn)
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(SurfaceDark, BrandPrimary.copy(alpha = 0.35f)))),
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(R.drawable.login_bg),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.verticalGradient(listOf(SurfaceDark.copy(alpha = 0.55f), BrandPrimary.copy(alpha = 0.25f)))),
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
