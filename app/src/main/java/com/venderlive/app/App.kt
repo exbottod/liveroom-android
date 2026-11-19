@@ -4,6 +4,7 @@ import android.app.Application
 import com.venderlive.app.data.local.SessionStore
 import com.venderlive.app.data.remote.ApiClient
 import com.venderlive.app.data.repository.AuthRepository
+import com.venderlive.app.debug.Beacon
 import com.venderlive.app.debug.CrashLog
 
 /**
