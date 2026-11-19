@@ -1,6 +1,10 @@
 package com.venderlive.app.debug
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import com.venderlive.app.BuildConfig
 import java.io.File
 import java.text.SimpleDateFormat
@@ -22,8 +26,45 @@ object CrashLog {
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, error ->
             runCatching { write(app, thread, error) }
+            // The screen may never draw, but a notification survives the crash.
+            runCatching { notify(app, error) }
             previous?.uncaughtException(thread, error)
         }
+    }
+
+    /** Reports an error that was caught in code, the same way a crash is reported. */
+    fun report(context: Context, error: Throwable) {
+        val app = context.applicationContext
+        runCatching { write(app, Thread.currentThread(), error) }
+        runCatching { notify(app, error) }
+    }
+
+    private fun notify(context: Context, error: Throwable) {
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channelId = "venderlive_crash"
+        if (Build.VERSION.SDK_INT >= 26) {
+            val channel = NotificationChannel(channelId, "Laporan kesalahan", NotificationManager.IMPORTANCE_HIGH)
+            manager.createNotificationChannel(channel)
+        }
+        val body = buildString {
+            appendLine("${error.javaClass.name}: ${error.message}")
+            appendLine()
+            appendLine(steps(context))
+        }
+        val builder = if (Build.VERSION.SDK_INT >= 26) {
+            Notification.Builder(context, channelId)
+        } else {
+            @Suppress("DEPRECATION")
+            Notification.Builder(context)
+        }
+        val notification = builder
+            .setContentTitle("VenderLive berhenti (v${BuildConfig.VERSION_NAME})")
+            .setContentText("${error.javaClass.simpleName}: ${error.message}".take(120))
+            .setSmallIcon(android.R.drawable.stat_notify_error)
+            .setStyle(Notification.BigTextStyle().bigText(body))
+            .setAutoCancel(true)
+            .build()
+        manager.notify(1001, notification)
     }
 
     private fun write(context: Context, thread: Thread, error: Throwable) {

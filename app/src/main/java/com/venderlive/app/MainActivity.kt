@@ -14,7 +14,19 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CrashLog.step(this, "MainActivity.onCreate")
-        showGate()
+        runCatching { showGate() }.onFailure { error ->
+            CrashLog.report(this, error)
+            // Last resort: a plain text view with the error, no Compose involved.
+            setContentView(
+                BootGateView(
+                    context = this,
+                    report = "Gagal menampilkan layar awal.\n\n${error.javaClass.name}: ${error.message}",
+                    canOpenApp = false,
+                    onOpen = {},
+                    onClear = {},
+                ),
+            )
+        }
     }
 
     /** Plain-view gate: always renders, and reports what the last run did. */
@@ -59,6 +71,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun openApp() {
+        runCatching { openCompose() }.onFailure { error ->
+            CrashLog.report(this, error)
+            showGate()
+        }
+    }
+
+    private fun openCompose() {
         enableEdgeToEdge()
         CrashLog.step(this, "setContent mulai")
         setContent {
