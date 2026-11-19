@@ -3,6 +3,8 @@ package com.venderlive.app.data.repository
 import com.venderlive.app.data.local.SessionStore
 import com.venderlive.app.data.model.AuthResult
 import com.venderlive.app.data.model.FirebaseLoginRequest
+import com.venderlive.app.data.model.OtpRequest
+import com.venderlive.app.data.model.OtpVerifyRequest
 import com.venderlive.app.data.remote.ApiService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthProvider
@@ -62,6 +64,20 @@ class AuthRepository(
             ?: error("Gagal mengambil ID token")
 
         return exchange(idToken)
+    }
+
+    /** Ask our VPS to send a 6-digit code over WhatsApp. */
+    suspend fun requestWhatsAppOtp(phoneE164: String) {
+        val response = api.otpRequest(OtpRequest(phoneE164))
+        if (response.code != 0) error(response.message ?: "Gagal mengirim kode")
+    }
+
+    /** Confirm the WhatsApp code and take our own session. */
+    suspend fun verifyWhatsAppOtp(phoneE164: String, code: String): AuthResult {
+        val response = api.otpVerify(OtpVerifyRequest(phoneE164, code))
+        val result = response.data ?: error(response.message ?: "Kode salah")
+        sessionStore.save(result.accessToken, result.refreshToken, result.user.id)
+        return result
     }
 
     /** Sign in with a Google ID token from Credential Manager, then trade the

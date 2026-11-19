@@ -3,6 +3,8 @@ package com.venderlive.app.data.remote
 import com.venderlive.app.data.model.ApiEnvelope
 import com.venderlive.app.data.model.AuthResult
 import com.venderlive.app.data.model.FirebaseLoginRequest
+import com.venderlive.app.data.model.OtpRequest
+import com.venderlive.app.data.model.OtpVerifyRequest
 import com.venderlive.app.data.model.UserProfile
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -16,6 +18,12 @@ interface ApiService {
 
     @POST("v1/auth/firebase-login")
     suspend fun firebaseLogin(@Body body: FirebaseLoginRequest): ApiEnvelope<AuthResult>
+
+    @POST("v1/auth/otp/request")
+    suspend fun otpRequest(@Body body: OtpRequest): ApiEnvelope<Map<String, Any>>
+
+    @POST("v1/auth/otp/verify")
+    suspend fun otpVerify(@Body body: OtpVerifyRequest): ApiEnvelope<AuthResult>
 
     @GET("v1/me")
     suspend fun me(): ApiEnvelope<UserProfile>

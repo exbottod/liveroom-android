@@ -53,90 +53,35 @@ class LoginViewModel(private val repo: AuthRepository) : ViewModel() {
 
         viewModelScope.launch {
             try {
-                repo.requestOtp(
-                    phoneE164 = "+62${current.phone}",
-                    activity = activity,
-                    onCodeSent = { id, _ ->
-                        _state.value = _state.value.copy(
-                            verificationId = id,
-                            loading = false,
-                            secondsLeft = 60,
-                        )
-                        startCountdown()
-                    },
-                    onAutoVerified = { idToken ->
-                        loginWithToken(idToken)
-                    },
+                repo.requestWhatsAppOtp("+62${current.phone}")
+                _state.value = _state.value.copy(
+                    verificationId = "wa",
+                    loading = false,
+                    secondsLeft = 60,
                 )
+                startCountdown()
             } catch (e: Exception) {
-                _state.value = _state.value.copy(loading = false, error = e.message ?: "Gagal kirim OTP")
+                _state.value = _state.value.copy(
+                    loading = false,
+                    error = e.message ?: "Gagal mengirim kode WhatsApp",
+                )
             }
         }
     }
 
     fun verifyOtp() {
         val current = _state.value
-        val vid = current.verificationId ?: return
         if (!current.canVerify) return
         _state.value = current.copy(loading = true, error = null)
 
         viewModelScope.launch {
             try {
-                val result = repo.verifyOtpAndLogin(vid, current.otp)
+                val result = repo.verifyWhatsAppOtp("+62${current.phone}", current.otp)
                 _state.value = _state.value.copy(loading = false, loggedIn = result)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(loading = false, error = e.message ?: "Kode salah")
             }
         }
-    }
-
-    fun signInWithGoogle(activity: android.app.Activity) {
-        _state.value = _state.value.copy(loading = true, error = null)
-        viewModelScope.launch {
-            try {
-                val webClientId = googleWebClientId(activity)
-                if (webClientId.isBlank()) {
-                    _state.value = _state.value.copy(
-                        loading = false,
-                        error = "Google belum siap: web client ID belum ada",
-                    )
-                    return@launch
-                }
-                val manager = androidx.credentials.CredentialManager.create(activity)
-                val request = androidx.credentials.GetCredentialRequest.Builder()
-                    .addCredentialOption(
-                        com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
-                            .Builder(webClientId)
-                            .build(),
-                    )
-                    .build()
-                val credential = manager.getCredential(activity, request).credential
-                val googleIdToken = if (
-                    credential is androidx.credentials.CustomCredential &&
-                    credential.type ==
-                    com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-                        .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                ) {
-                    com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-                        .createFrom(credential.data).idToken
-                } else {
-                    error("Kredensial Google tidak dikenali")
-                }
-                val result = repo.signInWithGoogleIdToken(googleIdToken)
-                _state.value = _state.value.copy(loading = false, loggedIn = result)
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(
-                    loading = false,
-                    error = e.message ?: "Login Google gagal",
-                )
-            }
-        }
-    }
-
-    private fun googleWebClientId(context: android.content.Context): String {
-        val resId = context.resources.getIdentifier("default_web_client_id", "string", context.packageName)
-        if (resId != 0) return runCatching { context.getString(resId) }.getOrDefault("")
-        return runCatching { com.venderlive.app.BuildConfig.GOOGLE_WEB_CLIENT_ID }.getOrDefault("")
     }
 
     private fun loginWithToken(idToken: String) {
