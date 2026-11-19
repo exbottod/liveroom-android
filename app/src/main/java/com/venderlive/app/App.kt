@@ -16,8 +16,11 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         CrashLog.install(this)
+        CrashLog.rotateSteps(this)
+        CrashLog.step(this, "App.onCreate mulai")
         sessionStore = SessionStore(this)
         ApiClient.init(sessionStore)
         authRepository = AuthRepository(sessionStore, ApiClient.service)
+        CrashLog.step(this, "App.onCreate selesai")
     }
 }

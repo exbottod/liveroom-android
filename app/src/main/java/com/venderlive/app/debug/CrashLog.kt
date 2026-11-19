@@ -14,6 +14,8 @@ import java.util.Locale
 object CrashLog {
 
     private const val FILE_NAME = "last_crash.txt"
+    private const val STEPS_FILE = "startup_steps.txt"
+    private const val PREV_STEPS_FILE = "startup_steps_prev.txt"
 
     fun install(context: Context) {
         val app = context.applicationContext
@@ -37,9 +39,46 @@ object CrashLog {
             appendLine("API: ${BuildConfig.API_BASE_URL}")
             appendLine()
             appendLine(error.stackTraceToString())
+            appendLine()
+            appendLine("Jejak startup:")
+            appendLine(steps(context))
         }
         runCatching { File(context.filesDir, FILE_NAME).writeText(text) }
     }
+
+    /** Records how far startup got, so a crash (even a native one) leaves a trail. */
+    fun step(context: Context, label: String) {
+        val stamp = SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(Date())
+        runCatching {
+            File(context.filesDir, STEPS_FILE).appendText("$stamp $label\n")
+        }
+    }
+
+    fun steps(context: Context): String =
+        runCatching {
+            File(context.filesDir, STEPS_FILE).takeIf { it.exists() }?.readText().orEmpty()
+        }.getOrDefault("")
+
+    fun clearSteps(context: Context) {
+        runCatching { File(context.filesDir, STEPS_FILE).delete() }
+        runCatching { File(context.filesDir, PREV_STEPS_FILE).delete() }
+    }
+
+    /** Keeps the previous run's steps so a run that died without a Java crash is visible. */
+    fun rotateSteps(context: Context) {
+        runCatching {
+            val current = File(context.filesDir, STEPS_FILE)
+            if (current.exists() && current.length() > 0) {
+                current.copyTo(File(context.filesDir, PREV_STEPS_FILE), overwrite = true)
+            }
+            current.delete()
+        }
+    }
+
+    fun previousSteps(context: Context): String =
+        runCatching {
+            File(context.filesDir, PREV_STEPS_FILE).takeIf { it.exists() }?.readText().orEmpty()
+        }.getOrDefault("")
 
     fun read(context: Context): String? =
         runCatching {
