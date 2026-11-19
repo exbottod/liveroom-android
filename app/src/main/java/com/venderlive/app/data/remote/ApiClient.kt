@@ -42,6 +42,6 @@ object ApiClient {
     }
 
     fun init(sessionStore: SessionStore) {
-        store = sessionStore
+        if (!::store.isInitialized) store = sessionStore
     }
 }
