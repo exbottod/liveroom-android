@@ -28,7 +28,11 @@ fun AppNav() {
     val app = context.applicationContext as App
     val scope = rememberCoroutineScope()
 
-    val startRoute = if (app.authRepository.currentUserId() != null) Route.HOME else Route.LOGIN
+    val startRoute = if (runCatching { app.authRepository.currentUserId() }.getOrNull() != null) {
+        Route.HOME
+    } else {
+        Route.LOGIN
+    }
 
     NavHost(navController = navController, startDestination = startRoute) {
         composable(Route.LOGIN) {
