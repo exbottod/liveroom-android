@@ -12,7 +12,7 @@ editable SVG in design/icons. Edit those directly.
 import math
 import os
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "app", "src", "main", "res")
@@ -38,6 +38,11 @@ CONFIG = {
     "levels": [(124, 77, 255), (140, 92, 255), (158, 110, 255), (176, 128, 255),
                (255, 77, 141), (255, 110, 164), (255, 150, 190), (255, 196, 84),
                (255, 214, 120), (255, 236, 180)],
+    # tier badges: ic_lv_0 up to ic_lv_100 in steps of ten, bronze to diamond
+    "level_tiers": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+    "level_tier_colors": [(196, 132, 84), (206, 146, 92), (150, 176, 196), (168, 194, 214),
+                          (255, 196, 84), (255, 212, 116), (255, 150, 190), (214, 140, 255),
+                          (120, 200, 255), (150, 225, 255), (255, 245, 210)],
     "background_darken": 0.35,
     "background_size": (1080, 1920),
 }
@@ -151,6 +156,36 @@ def hexagon(size, color, pips):
     return im.resize((size, size), Image.LANCZOS)
 
 
+def _font(px):
+    for path in ("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                 "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"):
+        if os.path.exists(path):
+            return ImageFont.truetype(path, px)
+    return ImageFont.load_default()
+
+
+def tier_badge(size, color, label):
+    """Hexagon tier badge with the tier number in the middle, drawn by us."""
+    s = size * 4
+    im = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    cx = cy = s // 2
+    r = s * 0.46
+    pts = [(cx + r * math.cos(math.radians(90 + 60 * i)), cy - r * math.sin(math.radians(90 + 60 * i)))
+           for i in range(6)]
+    d.polygon(pts, fill=(20, 16, 30, 240))
+    d.line(pts + [pts[0]], fill=color + (255,), width=int(s * 0.055), joint="curve")
+    r2 = r * 0.78
+    pts2 = [(cx + r2 * math.cos(math.radians(90 + 60 * i)), cy - r2 * math.sin(math.radians(90 + 60 * i)))
+            for i in range(6)]
+    d.line(pts2 + [pts2[0]], fill=color + (110,), width=int(s * 0.018), joint="curve")
+    f = _font(int(s * (0.34 if len(label) < 3 else 0.26)))
+    box = d.textbbox((0, 0), label, font=f)
+    d.text((cx - (box[2] - box[0]) / 2 - box[0], cy - (box[3] - box[1]) / 2 - box[1]), label,
+           font=f, fill=color + (255,))
+    return im.resize((size, size), Image.LANCZOS)
+
+
 def launcher(size):
     s = size * 4
     im = Image.new("RGBA", (s, s), (14, 11, 22, 255))
@@ -196,6 +231,9 @@ def main():
 
     for i, color in enumerate(CONFIG["levels"], start=1):
         hexagon(216, color, i - 1).save(os.path.join(RES, "drawable-xxhdpi", f"ic_lv_{i}.png"))
+
+    for tier, color in zip(CONFIG["level_tiers"], CONFIG["level_tier_colors"]):
+        tier_badge(216, color, str(tier)).save(os.path.join(RES, "drawable-xxhdpi", f"ic_lv_{tier}.png"))
 
     for name, px in LAUNCHER.items():
         out = os.path.join(RES, f"mipmap-{name}")
