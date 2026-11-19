@@ -1,24 +1,49 @@
 name: Android CI
+
 on:
   push:
     branches: [main]
   workflow_dispatch: {}
+
+concurrency:
+  group: android-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+
+      # The ubuntu runner ships with the Android SDK, so no extra setup action is needed.
+      - name: Show SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls "$ANDROID_HOME/platforms" || true
+
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - uses: android-actions/setup-android@v3
-      - run: echo "sdk.dir=$ANDROID_HOME" > local.properties
-      - run: gradle :app:assembleDebug --no-daemon --stacktrace
-      - uses: actions/upload-artifact@v4
+
+      - name: Write local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          echo "API_BASE_URL=${{ vars.API_BASE_URL || 'https://api.venderlive.example/' }}" >> local.properties
+          echo "WS_URL=${{ vars.WS_URL || 'wss://api.venderlive.example/ws' }}" >> local.properties
+          echo "AGORA_APP_ID=${{ vars.AGORA_APP_ID }}" >> local.properties
+
+      - name: Assemble debug
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: venderlive-debug-apk
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: warn
+          retention-days: 14
