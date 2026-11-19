@@ -4,8 +4,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
   <path d="M54,30 m-9,0 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0" fill="#FF4D8D" />
   <path d="M50,34 h8 v16 h-8 z" fill="#FF4D8D" />
-  <path d="M40,52 a14,14 0 0,0 28,0" fill="#000000" stroke="#F3EFFA" stroke-width="3" stroke-linecap="round" fill="none" />
-  <path d="M54,66 v10" fill="#000000" stroke="#F3EFFA" stroke-width="3" stroke-linecap="round" fill="none" />
-  <path d="M32,32 a22,22 0 0,0 0,28" fill="#000000" stroke="#7C4DFF" stroke-width="3" stroke-linecap="round" fill="none" />
-  <path d="M76,32 a22,22 0 0,1 0,28" fill="#000000" stroke="#7C4DFF" stroke-width="3" stroke-linecap="round" fill="none" />
+  <path d="M40,52 a14,14 0 0,0 28,0" stroke="#F3EFFA" stroke-width="3" stroke-linecap="round" fill="none" />
+  <path d="M54,66 v10" stroke="#F3EFFA" stroke-width="3" stroke-linecap="round" fill="none" />
+  <path d="M32,32 a22,22 0 0,0 0,28" stroke="#7C4DFF" stroke-width="3" stroke-linecap="round" fill="none" />
+  <path d="M76,32 a22,22 0 0,1 0,28" stroke="#7C4DFF" stroke-width="3" stroke-linecap="round" fill="none" />
 </svg>

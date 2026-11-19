@@ -68,3 +68,16 @@ drawable/ic_nav_room.xml, ic_nav_message.xml, ic_nav_profile.xml
 
 All XML slots are ours already. Bitmap, svga, mp4 and mp3 slots are filled only
 with VenderLive originals.
+
+## Layout previews
+
+`tools/render_preview.py` renders the login, room and profile layouts to PNG using the
+real res assets, so the design can be reviewed without building the app. It needs
+Pillow, and the vector icons rasterised first:
+
+```
+for f in design/icons/*.svg; do rsvg-convert -w 192 -h 192 "$f" -o "art/icons_png/$(basename "$f" .svg).png"; done
+python3 tools/render_preview.py
+```
+
+Output goes to `art/ui/`. These are design renders, not device screenshots.

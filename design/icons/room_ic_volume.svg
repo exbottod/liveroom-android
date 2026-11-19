@@ -3,5 +3,5 @@
      app/src/main/res/drawable/ic_volume.xml (or run tools/gen_assets.py). -->
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
   <path d="M4,9h4l5,-4v14l-5,-4H4zM16,8.5a5,5 0 0,1 0,7M18.5,6a8.5,8.5 0 0,1 0,12" fill="#FFFFFF" />
-  <path d="M16,8.5a5,5 0 0,1 0,7" fill="#000000" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" fill="none" />
+  <path d="M16,8.5a5,5 0 0,1 0,7" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" fill="none" />
 </svg>
