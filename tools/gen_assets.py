@@ -40,9 +40,10 @@ CONFIG = {
                (255, 214, 120), (255, 236, 180)],
     # tier badges: ic_lv_0 up to ic_lv_100 in steps of ten, bronze to diamond
     "level_tiers": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-    "level_tier_colors": [(196, 132, 84), (206, 146, 92), (150, 176, 196), (168, 194, 214),
-                          (255, 196, 84), (255, 212, 116), (255, 150, 190), (214, 140, 255),
-                          (120, 200, 255), (150, 225, 255), (255, 245, 210)],
+    # tier palette: grey, salmon, navy, orange, pink, teal, green, blue-violet, red, purple, black
+    "level_tier_colors": [(168, 168, 168), (214, 122, 96), (54, 80, 150), (240, 140, 40),
+                          (232, 60, 156), (16, 176, 176), (10, 132, 24), (66, 44, 228),
+                          (240, 52, 52), (128, 24, 224), (32, 32, 36)],
     "background_darken": 0.35,
     "background_size": (1080, 1920),
 }
@@ -186,6 +187,34 @@ def tier_badge(size, color, label):
     return im.resize((size, size), Image.LANCZOS)
 
 
+def tier_chip(width, height, color, label):
+    """Wide level chip: rounded pill, tier gradient, number in white. Our own drawing."""
+    W, H = width * 4, height * 4
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    light = _lerp(color, (255, 255, 255), 0.35)
+    dark = _lerp(color, (0, 0, 0), 0.30)
+    mask = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, W - 1, H - 1], radius=H // 2, fill=255)
+    grad = Image.new("RGBA", (W, H))
+    gd = ImageDraw.Draw(grad)
+    for x in range(W):
+        gd.line([(x, 0), (x, H)], fill=light + (255,) if x < W // 2 else dark + (255,))
+    for x in range(W):
+        t = abs(x - W / 2) / (W / 2)
+        gd.line([(x, 0), (x, H)], fill=_lerp(light, dark, t) + (255,))
+    im.paste(grad, (0, 0), mask)
+    d = ImageDraw.Draw(im)
+    # top highlight and outer rim
+    d.rounded_rectangle([2, 2, W - 3, H - 3], radius=H // 2, outline=(255, 255, 255, 90), width=max(2, H // 40))
+    d.line([(H * 0.4, H * 0.18), (W - H * 0.4, H * 0.18)], fill=(255, 255, 255, 110), width=max(2, H // 30))
+    f = _font(int(H * (0.52 if len(label) < 3 else 0.44)))
+    box = d.textbbox((0, 0), label, font=f)
+    d.text(((W - (box[2] - box[0])) / 2 - box[0], (H - (box[3] - box[1])) / 2 - box[1]),
+           label, font=f, fill=(255, 255, 255, 255))
+    return im.resize((width, height), Image.LANCZOS)
+
+
 def launcher(size):
     s = size * 4
     im = Image.new("RGBA", (s, s), (14, 11, 22, 255))
@@ -232,8 +261,12 @@ def main():
     for i, color in enumerate(CONFIG["levels"], start=1):
         hexagon(216, color, i - 1).save(os.path.join(RES, "drawable-xxhdpi", f"ic_lv_{i}.png"))
 
-    for tier, color in zip(CONFIG["level_tiers"], CONFIG["level_tier_colors"]):
-        tier_badge(216, color, str(tier)).save(os.path.join(RES, "drawable-xxhdpi", f"ic_lv_{tier}.png"))
+    # level chips at three densities, 58x20dp base
+    for dens, (w, h) in {"xhdpi": (116, 40), "xxhdpi": (174, 60), "xxxhdpi": (232, 80)}.items():
+        out = os.path.join(RES, f"drawable-{dens}")
+        os.makedirs(out, exist_ok=True)
+        for tier, color in zip(CONFIG["level_tiers"], CONFIG["level_tier_colors"]):
+            tier_chip(w, h, color, str(tier)).save(os.path.join(out, f"ic_lv_{tier}.png"))
 
     for name, px in LAUNCHER.items():
         out = os.path.join(RES, f"mipmap-{name}")
