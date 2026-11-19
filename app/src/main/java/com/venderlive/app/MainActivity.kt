@@ -16,7 +16,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         CrashLog.step(this, "MainActivity.onCreate")
         Beacon.sendAsync("ACTIVITY v${BuildConfig.VERSION_NAME}", Beacon.deviceLine(this) + "\nMainActivity.onCreate jalan")
-        runCatching { showGate() }.onFailure { error ->
+        // Open straight into the app, the way viza and rezo do: no gate screen.
+        runCatching { openCompose() }.onFailure { error ->
             CrashLog.report(this, error)
             // Last resort: a plain text view with the error, no Compose involved.
             setContentView(
@@ -70,13 +71,6 @@ class MainActivity : ComponentActivity() {
                 onClear = { recreate() },
             ),
         )
-    }
-
-    private fun openApp() {
-        runCatching { openCompose() }.onFailure { error ->
-            CrashLog.report(this, error)
-            showGate()
-        }
     }
 
     private fun openCompose() {
