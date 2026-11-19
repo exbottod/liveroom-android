@@ -40,10 +40,21 @@ jobs:
       - name: Assemble debug
         run: gradle :app:assembleDebug --no-daemon --stacktrace
 
+      - name: Assemble diagnostic app
+        run: gradle :diag:assembleDebug --no-daemon --stacktrace
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: venderlive-debug-apk
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload diagnostic APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: venderlive-diag-apk
+          path: diag/build/outputs/apk/debug/*.apk
           if-no-files-found: warn
           retention-days: 14

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application
+        android:allowBackup="false"
+        android:label="VenderLive Uji"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+        <!-- Firebase auto-init is disabled on purpose: the test app starts it
+             manually so a failure can be caught and shown instead of crashing. -->
+        <provider
+            android:name="com.google.firebase.provider.FirebaseInitProvider"
+            android:authorities="com.venderlive.diag.firebaseinitprovider"
+            android:enabled="false" />
+        <activity
+            android:name=".DiagActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

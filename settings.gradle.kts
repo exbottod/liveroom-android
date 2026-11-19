@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "VenderLive"
 include(":app")
+include(":diag")
