@@ -1,0 +1,3 @@
+-keep class com.exbottod.liveroom.data.model.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*

@@ -1,0 +1,5 @@
+# Copy to local.properties (never committed)
+sdk.dir=/path/to/Android/sdk
+API_BASE_URL=https://api.yourdomain.com/
+WS_URL=wss://api.yourdomain.com/ws
+AGORA_APP_ID=
