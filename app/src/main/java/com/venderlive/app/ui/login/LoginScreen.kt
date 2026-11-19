@@ -3,6 +3,7 @@ package com.venderlive.app.ui.login
 import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -58,6 +62,25 @@ import com.venderlive.app.ui.theme.SurfaceDark
 fun LoginScreen(
     viewModel: LoginViewModel,
     onLoggedIn: (AuthResult) -> Unit,
+) {
+    var phoneMode by remember { mutableStateOf(false) }
+    val st by viewModel.state.collectAsState()
+    if (phoneMode || st.stepOtp) {
+        PhoneLoginScreen(viewModel, onLoggedIn, onBack = { phoneMode = false })
+    } else {
+        LoginHome(
+            viewModel = viewModel,
+            onLoggedIn = onLoggedIn,
+            onPhone = { phoneMode = true },
+        )
+    }
+}
+
+@Composable
+private fun PhoneLoginScreen(
+    viewModel: LoginViewModel,
+    onLoggedIn: (AuthResult) -> Unit,
+    onBack: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
     val activity = LocalContext.current as? Activity
@@ -91,6 +114,7 @@ fun LoginScreen(
                 text = "VenderLive",
                 style = MaterialTheme.typography.headlineLarge,
                 color = BrandAccent,
+                modifier = Modifier.clickable(onClick = onBack),
             )
             Spacer(Modifier.height(8.dp))
             Text(
@@ -115,7 +139,7 @@ fun LoginScreen(
 
             Spacer(Modifier.height(32.dp))
             Text(
-                text = "Dengan masuk, Anda setuju pada Ketentuan Layanan dan Kebijakan Privasi kami.",
+                text = "Login berarti setuju dengan Perjanjian Pengguna dan Kebijakan Privasi.",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                 textAlign = TextAlign.Center,
