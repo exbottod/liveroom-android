@@ -66,7 +66,7 @@ fun HomeScreen(
             when (tab) {
                 0 -> HomeFeed(onOpenRoom = onOpenRoom)
                 1 -> Placeholder("Permainan segera hadir")
-                2 -> Placeholder("Momen segera hadir")
+                2 -> MomentScreen()
                 3 -> MessagesScreen()
                 else -> ProfileScreen(
                     nickname = "user_" + userId.takeLast(6),
