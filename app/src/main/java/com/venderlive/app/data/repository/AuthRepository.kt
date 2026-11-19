@@ -64,6 +64,19 @@ class AuthRepository(
         return exchange(idToken)
     }
 
+    /** Sign in with a Google ID token from Credential Manager, then trade the
+     *  Firebase ID token for our own backend session. */
+    suspend fun signInWithGoogleIdToken(googleIdToken: String): AuthResult {
+        val credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(googleIdToken, null)
+        val user = auth.signInWithCredential(credential).await().user
+            ?: error("Firebase tidak mengembalikan user")
+
+        val idToken = user.getIdToken(false).await().token
+            ?: error("Gagal mengambil ID token")
+
+        return exchange(idToken)
+    }
+
     /** Trade an already-obtained Firebase ID token for our backend session. */
     suspend fun exchange(idToken: String): AuthResult {
         val response = api.firebaseLogin(FirebaseLoginRequest(idToken))

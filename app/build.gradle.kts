@@ -22,11 +22,12 @@ android {
         applicationId = "com.venderlive.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 12
-        versionName = "0.1.11"
+        versionCode = 13
+        versionName = "0.1.12"
 
         buildConfigField("String", "API_BASE_URL", "\"${prop("API_BASE_URL", "https://vender.43-156-99-4.sslip.io/")}\"")
         buildConfigField("String", "AGORA_APP_ID", "\"${prop("AGORA_APP_ID", "")}\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${prop("GOOGLE_WEB_CLIENT_ID", "")}\"")
         buildConfigField("String", "WS_URL", "\"${prop("WS_URL", "wss://api.example.com/ws")}\"")
     }
 
@@ -92,4 +93,8 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 }

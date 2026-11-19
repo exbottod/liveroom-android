@@ -65,9 +65,16 @@ private const val PRIVACY_URL = "https://exbottod.github.io/liveroom-android/pri
 fun LoginScreen(
     viewModel: LoginViewModel,
     onLoggedIn: (AuthResult) -> Unit,
+    onGuest: () -> Unit = {},
 ) {
     var phoneMode by remember { mutableStateOf(false) }
     val st by viewModel.state.collectAsState()
+    val screenContext = LocalContext.current
+    androidx.compose.runtime.LaunchedEffect(st.error) {
+        st.error?.let {
+            android.widget.Toast.makeText(screenContext, it, android.widget.Toast.LENGTH_LONG).show()
+        }
+    }
     if (phoneMode || st.stepOtp) {
         PhoneLoginScreen(viewModel, onLoggedIn, onBack = { phoneMode = false })
     } else {
@@ -83,10 +90,13 @@ fun LoginScreen(
                     .show()
             }
         }
+        val host = context as? android.app.Activity
         LoginHome(
             viewModel = viewModel,
             onLoggedIn = onLoggedIn,
             onPhone = { phoneMode = true },
+            onGoogle = { host?.let(viewModel::signInWithGoogle) },
+            onGuest = onGuest,
             onOpenTerms = { openPage(TERMS_URL) },
             onOpenPrivacy = { openPage(PRIVACY_URL) },
         )

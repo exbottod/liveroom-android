@@ -39,6 +39,11 @@ fun AppNav() {
             val vm: LoginViewModel = viewModel { LoginViewModel(app.authRepository) }
             LoginScreen(
                 viewModel = vm,
+                onGuest = {
+                    navController.navigate(Route.HOME) {
+                        popUpTo(Route.LOGIN) { inclusive = true }
+                    }
+                },
                 onLoggedIn = { result ->
                     navController.navigate(Route.HOME) {
                         popUpTo(Route.LOGIN) { inclusive = true }
