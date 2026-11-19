@@ -24,6 +24,8 @@ class CrashScreenView(
     private val onCleared: () -> Unit,
 ) : LinearLayout(context) {
 
+    private val report: String = text
+
     init {
         orientation = VERTICAL
         setBackgroundColor(Color.parseColor("#0B1220"))
@@ -46,7 +48,7 @@ class CrashScreenView(
 
         val scroller = ScrollView(context)
         scroller.addView(TextView(context).apply {
-            text = text
+            text = report
             setTextColor(Color.parseColor("#E2E8F0"))
             textSize = 11f
             typeface = Typeface.MONOSPACE
@@ -69,14 +71,14 @@ class CrashScreenView(
         val copy = Button(context).apply {
             text = "Salin"
             setOnClickListener {
-                copyToClipboard(text)
+                copyToClipboard(report)
                 Toast.makeText(context, "Laporan disalin", Toast.LENGTH_SHORT).show()
             }
         }
         val restart = Button(context).apply {
             text = "Salin & mulai ulang"
             setOnClickListener {
-                copyToClipboard(text)
+                copyToClipboard(report)
                 CrashLog.clear(context)
                 CrashLog.clearSteps(context)
                 onCleared()
