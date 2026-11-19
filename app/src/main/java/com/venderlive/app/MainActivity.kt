@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.venderlive.app.debug.Beacon
 import com.venderlive.app.debug.BootGateView
 import com.venderlive.app.debug.CrashLog
 import com.venderlive.app.navigation.AppNav
@@ -14,6 +15,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CrashLog.step(this, "MainActivity.onCreate")
+        Beacon.sendAsync("ACTIVITY v${BuildConfig.VERSION_NAME}", Beacon.deviceLine(this) + "\nMainActivity.onCreate jalan")
         runCatching { showGate() }.onFailure { error ->
             CrashLog.report(this, error)
             // Last resort: a plain text view with the error, no Compose involved.
@@ -78,6 +80,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun openCompose() {
+        Beacon.sendAsync("OPEN v${BuildConfig.VERSION_NAME}", "Menampilkan Compose")
         enableEdgeToEdge()
         CrashLog.step(this, "setContent mulai")
         setContent {
@@ -86,6 +89,9 @@ class MainActivity : ComponentActivity() {
             }
         }
         CrashLog.step(this, "setContent dipanggil")
-        window.decorView.post { CrashLog.step(this, "startup sukses") }
+        window.decorView.post {
+            CrashLog.step(this, "startup sukses")
+            Beacon.sendAsync("OK v${BuildConfig.VERSION_NAME}", "Compose tampil tanpa error")
+        }
     }
 }

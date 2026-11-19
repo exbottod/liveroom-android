@@ -24,6 +24,8 @@ class App : Application() {
         super.onCreate()
         CrashLog.install(this)
         CrashLog.rotateSteps(this)
+        CrashLog.step(this, "App.onCreate mulai")
+        Beacon.sendAsync("START v${com.venderlive.app.BuildConfig.VERSION_NAME}", Beacon.deviceLine(this) + "\nApp.onCreate mulai")
         CrashLog.step(this, "App.onCreate: mulai Firebase")
         runCatching { com.google.firebase.FirebaseApp.initializeApp(this) }
             .onSuccess { CrashLog.step(this, "Firebase siap") }

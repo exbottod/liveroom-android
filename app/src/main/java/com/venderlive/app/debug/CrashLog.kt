@@ -28,6 +28,19 @@ object CrashLog {
             runCatching { write(app, thread, error) }
             // The screen may never draw, but a notification survives the crash.
             runCatching { notify(app, error) }
+            runCatching {
+                Beacon.sendBlocking(
+                    "CRASH v${BuildConfig.VERSION_NAME}",
+                    buildString {
+                        appendLine(Beacon.deviceLine(app))
+                        appendLine()
+                        appendLine(android.util.Log.getStackTraceString(error).take(4000))
+                        appendLine()
+                        appendLine("== langkah startup ==")
+                        appendLine(steps(app))
+                    },
+                )
+            }
             previous?.uncaughtException(thread, error)
         }
     }
@@ -37,6 +50,12 @@ object CrashLog {
         val app = context.applicationContext
         runCatching { write(app, Thread.currentThread(), error) }
         runCatching { notify(app, error) }
+        runCatching {
+            Beacon.sendBlocking(
+                "ERROR v${BuildConfig.VERSION_NAME}",
+                "${Beacon.deviceLine(app)}\n${android.util.Log.getStackTraceString(error).take(4000)}",
+            )
+        }
     }
 
     private fun notify(context: Context, error: Throwable) {
