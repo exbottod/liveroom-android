@@ -4,43 +4,61 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.venderlive.app.debug.BootGateView
 import com.venderlive.app.debug.CrashLog
-import com.venderlive.app.debug.CrashScreenView
 import com.venderlive.app.navigation.AppNav
 import com.venderlive.app.ui.theme.VenderLiveTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CrashLog.step(this, "MainActivity.onCreate")
+        showGate()
+    }
 
-        // Plain-view crash report: works even when Compose is what crashed.
+    /** Plain-view gate: always renders, and reports what the last run did. */
+    private fun showGate() {
         val trace = CrashLog.read(this)
-        if (trace != null) {
-            CrashLog.step(this, "menampilkan laporan crash")
-            setContentView(
-                CrashScreenView(
-                    context = this,
-                    text = trace,
-                    onCleared = { recreate() },
-                ),
-            )
-            return
+        val prevSteps = CrashLog.previousSteps(this)
+        val currentSteps = CrashLog.steps(this)
+        val diedLastTime = prevSteps.isNotBlank() && !prevSteps.contains("startup sukses")
+
+        val report = buildString {
+            appendLine("Versi: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+            appendLine("Perangkat: ${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}, Android ${android.os.Build.VERSION.RELEASE} (API ${android.os.Build.VERSION.SDK_INT})")
+            appendLine("API: ${BuildConfig.API_BASE_URL}")
+            appendLine()
+            when {
+                trace != null -> {
+                    appendLine("== LAPORAN CRASH TERAKHIR ==")
+                    appendLine(trace)
+                }
+                diedLastTime -> {
+                    appendLine("== STARTUP TERAKHIR TIDAK SELESAI ==")
+                    appendLine(prevSteps)
+                }
+                else -> {
+                    appendLine("Tidak ada crash tercatat. Tekan Buka aplikasi untuk menampilkan VenderLive.")
+                }
+            }
+            appendLine()
+            appendLine("== LANGKAH SEKARANG ==")
+            appendLine(currentSteps)
         }
 
-        // A run that ended without a Java crash (killed by the system) still leaves steps.
-        val prev = CrashLog.previousSteps(this)
-        if (prev.isNotBlank() && !prev.contains("startup sukses")) {
-            setContentView(
-                CrashScreenView(
-                    context = this,
-                    text = "Startup terakhir tidak selesai.\n\nJejak langkah:\n" + prev,
-                    onCleared = { recreate() },
-                ),
-            )
-            return
-        }
+        setContentView(
+            BootGateView(
+                context = this,
+                report = report,
+                canOpenApp = true,
+                onOpen = { openApp() },
+                onClear = { recreate() },
+            ),
+        )
+    }
 
+    private fun openApp() {
         enableEdgeToEdge()
         CrashLog.step(this, "setContent mulai")
         setContent {
