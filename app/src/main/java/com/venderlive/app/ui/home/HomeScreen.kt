@@ -50,7 +50,8 @@ fun HomeScreen(
     onOpenRoom: (String) -> Unit = {},
 ) {
     var tab by remember { mutableStateOf(0) }
-    var showCheckIn by remember { mutableStateOf(true) }
+    // The daily check-in rewards are not backed by the server yet, so the popup stays off.
+    var showCheckIn by remember { mutableStateOf(false) }
     val tabs = listOf(
         "Beranda" to R.drawable.home_ic_tab_home,
         "Permainan" to R.drawable.home_ic_tab_game,

@@ -45,19 +45,17 @@ data class Conversation(
     val unread: Int = 0,
 )
 
-val SampleConversations = listOf(
-    Conversation("team", ConversationKind.OFFICIAL_TEAM, "Tim Vender", "Kirim hadiah acara untuk mengumpulkan poin, ...", "Senin", 1),
-    Conversation("gift", ConversationKind.GIFT_NOTICE, "Pemberitahuan Hadiah"),
-)
+/** Real conversations come from the server; until then the inbox is empty. */
+val NoConversations: List<Conversation> = emptyList()
 
 private val MsgTeal = Color(0xFF1CDBBA)
 
 /** Total unread, used for the badge on the bottom tab. */
-fun unreadTotal(list: List<Conversation> = SampleConversations) = list.sumOf { it.unread }
+fun unreadTotal(list: List<Conversation> = NoConversations) = list.sumOf { it.unread }
 
 @Composable
 fun MessagesScreen(
-    conversations: List<Conversation> = SampleConversations,
+    conversations: List<Conversation> = NoConversations,
     onOpen: (Conversation) -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxSize().background(MsgTeal)) {
@@ -73,6 +71,9 @@ fun MessagesScreen(
                 .background(Color.White),
         ) {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 10.dp)) {
+                if (conversations.isEmpty()) {
+                    item { EmptyState("Belum ada pesan", "Percakapan kamu akan muncul di sini.") }
+                }
                 items(conversations, key = { it.id }) { c -> ConversationRow(c) { onOpen(c) } }
             }
         }

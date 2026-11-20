@@ -59,11 +59,7 @@ fun AppNav() {
             val vm: LoginViewModel = viewModel { LoginViewModel(app.authRepository) }
             LoginScreen(
                 viewModel = vm,
-                onGuest = {
-                    navController.navigate(Route.HOME) {
-                        popUpTo(Route.LOGIN) { inclusive = true }
-                    }
-                },
+                // No guest entry: every user must have a real account and ID.
                 onLoggedIn = { result ->
                     // First login asks for name and gender; any later login goes straight in.
                     val firstTime = result.user.isNew || result.user.nickname.isNullOrBlank()

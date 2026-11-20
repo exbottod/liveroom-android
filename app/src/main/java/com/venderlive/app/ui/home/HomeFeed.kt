@@ -67,14 +67,8 @@ data class FeedRoom(
     val pk: Boolean = false,
 )
 
-val SampleFeedRooms = listOf(
-    FeedRoom("r1", "welcome", 1, "ID", Color(0xFFC9C3BB)),
-    FeedRoom("r2", "SPALEE NORIM", 8, "RS", Color(0xFFD7B8F2), pk = true),
-    FeedRoom("r3", "Gulya", 30, "KZ", Color(0xFF9FB0B8), pk = true),
-    FeedRoom("r4", "adyb", 8, "EG", Color(0xFFB59C86), pk = true),
-    FeedRoom("r5", "Malam Santai", 14, "ID", Color(0xFF8FA8D8)),
-    FeedRoom("r6", "Ngopi Bareng", 5, "ID", Color(0xFFE0B7A0)),
-)
+/** Real rooms come from the server; until then the feed is empty. */
+val NoFeedRooms: List<FeedRoom> = emptyList()
 
 private val FeedTabs = listOf("Milik saya", "Populer", "Berpesta")
 private val FeedChips = listOf("Panas", "Baru", "Permainan", "PK")
@@ -84,7 +78,7 @@ fun HomeFeed(
     onOpenRoom: (String) -> Unit,
     onSearch: () -> Unit = {},
     onCreateRoom: () -> Unit = {},
-    rooms: List<FeedRoom> = SampleFeedRooms,
+    rooms: List<FeedRoom> = NoFeedRooms,
 ) {
     var tab by remember { mutableIntStateOf(1) }
     var chip by remember { mutableIntStateOf(0) }
@@ -109,6 +103,11 @@ fun HomeFeed(
             item(span = { GridItemSpan(2) }) { BannerCarousel() }
             item(span = { GridItemSpan(2) }) { ShortcutRow() }
             item(span = { GridItemSpan(2) }) { ChipRow(chip) { chip = it } }
+            if (rooms.isEmpty()) {
+                item(span = { GridItemSpan(2) }) {
+                    EmptyState("Belum ada room", "Room yang sedang aktif akan muncul di sini.")
+                }
+            }
             items(rooms) { room -> RoomCard(room) { onOpenRoom(room.title) } }
         }
     }

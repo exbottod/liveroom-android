@@ -113,7 +113,7 @@ fun LoginHome(
             Row(horizontalArrangement = Arrangement.spacedBy(18.dp), verticalAlignment = Alignment.CenterVertically) {
                 SmallMethod(Color(0xFF3AA4F0), onClick = { onTelegram(); soon("Login Telegram") }) { TelegramGlyph(Modifier.size(20.dp)) }
                 SmallMethod(LoginTeal, onClick = onPhone) { PhoneGlyph(Modifier.size(18.dp)) }
-                SmallMethod(Color(0xFFE6E6EA), onClick = { onGuest(); soon("Login tamu") }) { GuestGlyph(Modifier.size(20.dp)) }
+                SmallMethod(Color(0xFFE6E6EA), onClick = { soon("Login tamu") }) { GuestGlyph(Modifier.size(20.dp)) }
             }
             Spacer(Modifier.height(16.dp))
             AgreementLine(onOpenTerms, onOpenPrivacy)

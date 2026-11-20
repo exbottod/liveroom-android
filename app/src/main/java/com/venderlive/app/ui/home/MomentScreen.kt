@@ -53,11 +53,8 @@ data class MomentPost(
     val following: Boolean = false,
 )
 
-val SampleMoments = listOf(
-    MomentPost("m1", "Mi", 0, true, "Mi", 1, "46 menit yang lalu", tint = Color(0xFFB88C6B)),
-    MomentPost("m2", "Lexa", 0, false, "", 2, "2 jam yang lalu", tint = Color(0xFFC9B3B0)),
-    MomentPost("m3", "Dinda", 12, false, "Selamat malam semua", 2, "6 jam yang lalu", tint = Color(0xFF9DB0C6)),
-)
+/** Real posts come from the server; until then the tab is empty. */
+val NoMoments: List<MomentPost> = emptyList()
 
 private val MomentTeal = Color(0xFF1CD3B2)
 private val Ink = Color(0xFF22222B)
@@ -66,7 +63,7 @@ private val MomentChips = listOf("Populer", "Baru", "Ikuti")
 
 @Composable
 fun MomentScreen(
-    posts: List<MomentPost> = SampleMoments,
+    posts: List<MomentPost> = NoMoments,
     onCompose: () -> Unit = {},
     onNotifications: () -> Unit = {},
 ) {
@@ -103,6 +100,9 @@ fun MomentScreen(
                 }
             }
             LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 90.dp)) {
+                if (posts.isEmpty()) {
+                    item { EmptyState("Belum ada momen", "Momen dari teman dan orang yang kamu ikuti akan muncul di sini.") }
+                }
                 items(posts, key = { it.id }) { p ->
                     PostCard(p, isFollowing = p.id in followed) {
                         followed = if (p.id in followed) followed - p.id else followed + p.id
