@@ -1,4 +1,4 @@
 {
-  "versi": "0.1.39",
-  "catatan": "v0.1.39: patch kecil dibuat dari v0.1.38"
+  "versi": "0.1.40",
+  "catatan": "Perbaiki crash saat membuka profil orang lain: daftarkan rute profile/{publicId} (v0.1.40)"
 }
