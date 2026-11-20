@@ -49,9 +49,9 @@ private data class MenuItem(val icon: Int, val title: String, val trailing: Stri
 fun ProfileScreen(
     nickname: String,
     displayId: String,
+    gender: String? = null,
     stats: ProfileStats = ProfileStats(),
     onMenuClick: (String) -> Unit = {},
-    onLogout: () -> Unit,
 ) {
     val primaryMenu = listOf(
         MenuItem(R.drawable.ic_wallet, "Dompet"),
@@ -63,6 +63,16 @@ fun ProfileScreen(
         MenuItem(R.drawable.ic_relationship, "Hubungan"),
         MenuItem(R.drawable.ic_family, "Keluarga", "Bergabunglah sekarang"),
         MenuItem(R.drawable.ic_guard, "Penjaga"),
+    )
+
+    val inviteMenu = listOf(
+        MenuItem(R.drawable.ic_invite, "Undang Teman", "Earn Coins"),
+        MenuItem(R.drawable.ic_shop, "Toko"),
+        MenuItem(R.drawable.ic_items, "Item Saya"),
+    )
+    val systemMenu = listOf(
+        MenuItem(R.drawable.ic_feedback, "Umpan Balik"),
+        MenuItem(R.drawable.ic_settings, "Pengaturan"),
     )
 
     Box(
@@ -84,7 +94,7 @@ fun ProfileScreen(
                 .padding(bottom = 16.dp),
         ) {
             Spacer(Modifier.height(48.dp))
-            ProfileHeader(nickname = nickname, displayId = displayId)
+            ProfileHeader(nickname = nickname, displayId = displayId, gender = gender)
             Spacer(Modifier.height(18.dp))
             StatsRow(stats)
             Spacer(Modifier.height(18.dp))
@@ -92,25 +102,15 @@ fun ProfileScreen(
             MenuCard(items = primaryMenu, onClick = onMenuClick)
 
             Spacer(Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .clickable(onClick = onLogout)
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text("Keluar", color = Color(0xFFE5484D), fontSize = 15.sp, fontWeight = FontWeight.Medium)
-            }
+            MenuCard(items = inviteMenu, onClick = onMenuClick)
+            Spacer(Modifier.height(12.dp))
+            MenuCard(items = systemMenu, onClick = onMenuClick)
         }
     }
 }
 
 @Composable
-private fun ProfileHeader(nickname: String, displayId: String) {
+private fun ProfileHeader(nickname: String, displayId: String, gender: String?) {
     Row(
         modifier = Modifier.padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -131,7 +131,21 @@ private fun ProfileHeader(nickname: String, displayId: String) {
         }
         Spacer(Modifier.width(14.dp))
         Column {
-            Text(text = nickname, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = nickname, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+                if (gender == "male" || gender == "female") {
+                    Spacer(Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clip(CircleShape)
+                            .background(if (gender == "male") Color(0xFF5AA9FF) else Color(0xFFFF7FB0)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(if (gender == "male") "♂" else "♀", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
             Spacer(Modifier.height(6.dp))
             Box(
                 modifier = Modifier

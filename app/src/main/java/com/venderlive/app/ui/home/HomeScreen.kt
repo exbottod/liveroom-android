@@ -32,7 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import com.venderlive.app.R
+import com.venderlive.app.ui.profile.ComingSoonScreen
 import com.venderlive.app.ui.profile.ProfileScreen
+import com.venderlive.app.ui.profile.SettingsScreen
 import com.venderlive.app.ui.profile.ProfileStats
 import com.venderlive.app.ui.theme.BrandAccent
 import com.venderlive.app.ui.theme.SurfaceCard
@@ -46,10 +48,13 @@ fun HomeScreen(
     userId: String,
     nickname: String? = null,
     publicId: String? = null,
+    gender: String? = null,
     onLogout: () -> Unit,
     onOpenRoom: (String) -> Unit = {},
 ) {
     var tab by remember { mutableStateOf(0) }
+    // Page opened from the Aku tab: null = none, "Pengaturan" = settings, else coming soon.
+    var openPage by remember { mutableStateOf<String?>(null) }
     // The daily check-in rewards are not backed by the server yet, so the popup stays off.
     var showCheckIn by remember { mutableStateOf(false) }
     val tabs = listOf(
@@ -71,13 +76,24 @@ fun HomeScreen(
                 1 -> Placeholder("Permainan segera hadir")
                 2 -> MomentScreen()
                 3 -> MessagesScreen()
-                else -> ProfileScreen(
-                    nickname = nickname?.takeIf { it.isNotBlank() }
-                        ?: "user_" + userId.takeLast(6),
-                    displayId = publicId?.takeIf { it.isNotBlank() } ?: userId,
-                    stats = ProfileStats(),
-                    onLogout = onLogout,
-                )
+                else -> {
+                    val page = openPage
+                    when (page) {
+                        null -> ProfileScreen(
+                            nickname = nickname?.takeIf { it.isNotBlank() }
+                                ?: "user_" + userId.takeLast(6),
+                            displayId = publicId?.takeIf { it.isNotBlank() } ?: userId,
+                            gender = gender,
+                            stats = ProfileStats(),
+                            onMenuClick = { openPage = it },
+                        )
+                        "Pengaturan" -> SettingsScreen(
+                            onBack = { openPage = null },
+                            onLogout = onLogout,
+                        )
+                        else -> ComingSoonScreen(title = page, onBack = { openPage = null })
+                    }
+                }
             }
         }
 
@@ -92,7 +108,7 @@ fun HomeScreen(
             tabs.forEachIndexed { index, (label, icon) ->
                 NavigationBarItem(
                     selected = tab == index,
-                    onClick = { tab = index },
+                    onClick = { tab = index; openPage = null },
                     icon = {
                         Box {
                             Icon(
