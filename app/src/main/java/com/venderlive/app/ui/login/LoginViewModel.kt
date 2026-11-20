@@ -125,6 +125,13 @@ class LoginViewModel(private val repo: AuthRepository) : ViewModel() {
                 }
                 val result = repo.signInWithGoogleIdToken(googleIdToken)
                 _state.value = _state.value.copy(loading = false, loggedIn = result)
+            } catch (e: androidx.credentials.exceptions.GetCredentialCancellationException) {
+                _state.value = _state.value.copy(loading = false)
+            } catch (e: androidx.credentials.exceptions.NoCredentialException) {
+                _state.value = _state.value.copy(
+                    loading = false,
+                    error = "Belum ada akun Google di HP ini, atau SHA-1 aplikasi belum didaftarkan di Firebase",
+                )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     loading = false,

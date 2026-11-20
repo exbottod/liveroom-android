@@ -78,15 +78,34 @@ class AuthRepository(
         return exchange(idToken)
     }
 
+
+    /**
+     * Retrofit throws on any 4xx/5xx and drops the server's own message, which is why the
+     * screen only said "HTTP 401". Pull the backend's `message` out of the error body instead.
+     */
+    private suspend fun <T> readingServerMessage(call: suspend () -> T): T {
+        try {
+            return call()
+        } catch (e: retrofit2.HttpException) {
+            val raw = runCatching { e.response()?.errorBody()?.string() }.getOrNull()
+            val message = runCatching {
+                com.google.gson.JsonParser.parseString(raw).asJsonObject.get("message")?.asString
+            }.getOrNull()
+            throw IllegalStateException(message ?: "Server menolak permintaan (HTTP ${e.code()})")
+        } catch (e: java.io.IOException) {
+            throw IllegalStateException("Tidak bisa terhubung ke server, cek internet")
+        }
+    }
+
     /** Ask our VPS to send a 6-digit code over WhatsApp. */
     suspend fun requestWhatsAppOtp(phoneE164: String) {
-        val response = api.otpRequest(OtpRequest(phoneE164))
+        val response = readingServerMessage { api.otpRequest(OtpRequest(phoneE164)) }
         if (response.code != 0) error(response.message ?: "Gagal mengirim kode")
     }
 
     /** Confirm the WhatsApp code and take our own session. */
     suspend fun verifyWhatsAppOtp(phoneE164: String, code: String): AuthResult {
-        val response = api.otpVerify(OtpVerifyRequest(phoneE164, code))
+        val response = readingServerMessage { api.otpVerify(OtpVerifyRequest(phoneE164, code)) }
         val result = response.data ?: error(response.message ?: "Kode salah")
         sessionStore.save(result.accessToken, result.refreshToken, result.user.id)
         sessionStore.cacheServerProfile(result.user)
@@ -108,7 +127,7 @@ class AuthRepository(
 
     /** Trade an already-obtained Firebase ID token for our backend session. */
     suspend fun exchange(idToken: String): AuthResult {
-        val response = api.firebaseLogin(FirebaseLoginRequest(idToken))
+        val response = readingServerMessage { api.firebaseLogin(FirebaseLoginRequest(idToken)) }
         val result = response.data ?: error(response.message ?: "Login ditolak server")
 
         sessionStore.save(result.accessToken, result.refreshToken, result.user.id)

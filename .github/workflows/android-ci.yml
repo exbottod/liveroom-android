@@ -37,6 +37,7 @@ jobs:
           echo "API_BASE_URL=${{ vars.API_BASE_URL || 'https://api.venderlive.example/' }}" >> local.properties
           echo "WS_URL=${{ vars.WS_URL || 'wss://api.venderlive.example/ws' }}" >> local.properties
           echo "AGORA_APP_ID=${{ vars.AGORA_APP_ID }}" >> local.properties
+          echo "GOOGLE_WEB_CLIENT_ID=${{ vars.GOOGLE_WEB_CLIENT_ID }}" >> local.properties
 
       - name: Assemble debug
         run: gradle :app:assembleDebug --no-daemon --stacktrace
