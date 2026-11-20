@@ -52,8 +52,21 @@ android {
             isMinifyEnabled = false
         }
         release {
+            // Same fixed key as debug so a release APK can update an installed one.
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+
+    // One APK per CPU type, so people download only the native code their phone needs.
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64")
+            isUniversalApk = true
         }
     }
 
