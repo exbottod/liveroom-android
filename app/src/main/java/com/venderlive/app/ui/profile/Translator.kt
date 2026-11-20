@@ -103,8 +103,8 @@ private fun LanguageListDialog(
                             .padding(vertical = 12.dp, horizontal = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(name, color = if (code == selected) Teal else Ink, fontSize = 15.sp, modifier = Modifier.weight(1f))
-                        if (code == selected) Text("✓", color = Teal, fontSize = 15.sp)
+                        Text(name, color = if (code == selected) FlagTeal else InkText, fontSize = 15.sp, modifier = Modifier.weight(1f))
+                        if (code == selected) Text("✓", color = FlagTeal, fontSize = 15.sp)
                     }
                 }
             }
@@ -150,7 +150,7 @@ internal fun TranslatorPage(appLanguage: String, onBack: () -> Unit) {
             Spacer(Modifier.height(8.dp))
             Text(
                 "Terjemahkan pesan atau nama untuk teman di room yang bahasanya berbeda.",
-                color = Muted, fontSize = 13.sp,
+                color = MutedText, fontSize = 13.sp,
             )
             Spacer(Modifier.height(16.dp))
 
@@ -163,7 +163,7 @@ internal fun TranslatorPage(appLanguage: String, onBack: () -> Unit) {
                 ) {
                     Icon(
                         Icons.Filled.ArrowDownward, "Tukar bahasa",
-                        tint = Ink, modifier = Modifier.size(18.dp),
+                        tint = InkText, modifier = Modifier.size(18.dp),
                     )
                 }
                 LanguageChip(nameOf(to), Modifier.weight(1f)) { picking = 1 }
@@ -182,7 +182,7 @@ internal fun TranslatorPage(appLanguage: String, onBack: () -> Unit) {
 
             Box(
                 modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                    .background(if (input.isBlank() || busy) Color(0xFFBFC6D2) else Teal)
+                    .background(if (input.isBlank() || busy) Color(0xFFBFC6D2) else FlagTeal)
                     .clickable(enabled = input.isNotBlank() && !busy) {
                         busy = true
                         error = null
@@ -210,13 +210,13 @@ internal fun TranslatorPage(appLanguage: String, onBack: () -> Unit) {
 
             if (output.isNotBlank()) {
                 Spacer(Modifier.height(18.dp))
-                Text("Hasil", color = Ink, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                Text("Hasil", color = InkText, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(6.dp))
                 Box(
                     Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFFF4F6F8))
                         .padding(14.dp),
                 ) {
-                    Text(output, color = Ink, fontSize = 15.sp)
+                    Text(output, color = InkText, fontSize = 15.sp)
                 }
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -228,7 +228,7 @@ internal fun TranslatorPage(appLanguage: String, onBack: () -> Unit) {
                                 copied = true
                             }
                             .padding(horizontal = 18.dp, vertical = 9.dp),
-                    ) { Text(if (copied) "Tersalin" else "Salin", color = Ink, fontSize = 13.sp) }
+                    ) { Text(if (copied) "Tersalin" else "Salin", color = InkText, fontSize = 13.sp) }
                     Box(
                         modifier = Modifier.clip(RoundedCornerShape(50)).background(Color(0xFFEDEFF3))
                             .clickable {
@@ -240,7 +240,7 @@ internal fun TranslatorPage(appLanguage: String, onBack: () -> Unit) {
                                 output = ""
                             }
                             .padding(horizontal = 18.dp, vertical = 9.dp),
-                    ) { Text("Tukar arah", color = Ink, fontSize = 13.sp) }
+                    ) { Text("Tukar arah", color = InkText, fontSize = 13.sp) }
                 }
             }
             Spacer(Modifier.height(30.dp).navigationBarsPadding())
@@ -255,5 +255,5 @@ private fun LanguageChip(label: String, modifier: Modifier = Modifier, onClick: 
             .clickable(onClick = onClick)
             .padding(vertical = 12.dp),
         contentAlignment = Alignment.Center,
-    ) { Text(label, color = Ink, fontSize = 14.sp) }
+    ) { Text(label, color = InkText, fontSize = 14.sp) }
 }

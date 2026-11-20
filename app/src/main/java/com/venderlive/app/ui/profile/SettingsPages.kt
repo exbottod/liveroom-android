@@ -70,7 +70,7 @@ private const val CHILD_SAFETY_URL = "https://exbottod.github.io/liveroom-androi
 private enum class SettingsPage { ACCOUNT, LANGUAGE, BLOCKED, ABOUT }
 
 @Composable
-private fun Page(title: String, onBack: () -> Unit, content: @Composable () -> Unit) {
+internal fun Page(title: String, onBack: () -> Unit, content: @Composable () -> Unit) {
     BackHandler(onBack = onBack)
     Column(modifier = Modifier.fillMaxSize().background(Color.White).statusBarsPadding()) {
         Box(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
