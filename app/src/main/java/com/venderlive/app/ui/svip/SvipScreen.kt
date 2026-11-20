@@ -72,17 +72,54 @@ internal data class SvipLevel(
     val frameUrl: String,
 )
 
+private const val FIRESTORE_URL =
+    "https://firestore.googleapis.com/v1/projects/test-app-94b28/databases/(default)/documents/pub/svip"
+
+private fun parseFirestoreLevels(root: JSONObject): List<SvipLevel> {
+    // Firestore wraps every value: {"integerValue":"5"}, {"stringValue":"x"}, arrays under values.
+    fun num(field: JSONObject?, key: String): Long {
+        val value = field?.optJSONObject("mapValue")?.optJSONObject("fields")?.optJSONObject(key) ?: return 0L
+        return value.optString("integerValue").toLongOrNull()
+            ?: value.optDouble("doubleValue", 0.0).toLong()
+    }
+    fun text(field: JSONObject?, key: String): String =
+        field?.optJSONObject("mapValue")?.optJSONObject("fields")?.optJSONObject(key)?.optString("stringValue").orEmpty()
+
+    val values = root.optJSONObject("fields")?.optJSONObject("levels")
+        ?.optJSONObject("arrayValue")?.optJSONArray("values") ?: return emptyList()
+    return (0 until values.length()).mapNotNull { index ->
+        val item = values.optJSONObject(index) ?: return@mapNotNull null
+        SvipLevel(
+            level = num(item, "level").toInt().takeIf { it > 0 } ?: (index + 1),
+            price = num(item, "price"),
+            score = num(item, "score"),
+            weeklyCoins = num(item, "weeklyCoins"),
+            medalUrl = text(item, "medalUrl"),
+            labelUrl = text(item, "labelUrl"),
+            frameUrl = text(item, "frameUrl"),
+        )
+    }
+}
+
+private fun getText(url: String): String? = runCatching {
+    val connection = (URL(url).openConnection() as HttpURLConnection).apply {
+        connectTimeout = 10000
+        readTimeout = 10000
+        setRequestProperty("User-Agent", "VenderLive")
+    }
+    if (connection.responseCode != 200) null else connection.inputStream.bufferedReader().use { it.readText() }
+}.getOrNull()
+
+/** The panel writes to Firestore; the old svip.json stays as a fallback. */
 internal suspend fun fetchSvipLevels(): List<SvipLevel> = withContext(Dispatchers.IO) {
+    val fromDatabase = getText(FIRESTORE_URL)
+        ?.let { runCatching { parseFirestoreLevels(JSONObject(it)) }.getOrDefault(emptyList()) }
+        .orEmpty()
+    if (fromDatabase.isNotEmpty()) return@withContext fromDatabase
+
     runCatching {
-        val url = URL("$SVIP_URL?t=" + System.currentTimeMillis())
-        val connection = (url.openConnection() as HttpURLConnection).apply {
-            connectTimeout = 10000
-            readTimeout = 10000
-            setRequestProperty("User-Agent", "VenderLive")
-        }
-        if (connection.responseCode != 200) return@runCatching emptyList()
-        val root = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
-        val list = root.optJSONArray("levels") ?: return@runCatching emptyList()
+        val body = getText("$SVIP_URL?t=" + System.currentTimeMillis()) ?: return@runCatching emptyList()
+        val list = JSONObject(body).optJSONArray("levels") ?: return@runCatching emptyList()
         (0 until list.length()).mapNotNull { index ->
             val item = list.optJSONObject(index) ?: return@mapNotNull null
             SvipLevel(

@@ -2,249 +2,283 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Panel Developer VenderLive</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VenderLive Panel</title>
 <style>
-  :root { --ink:#12141c; --muted:#6b7280; --line:#e5e7eb; --teal:#12b8a0; --gold:#c8942b; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-         background:#f6f7f9; color:var(--ink); }
-  header { background:#12141c; color:#fff; padding:22px 20px; }
-  header h1 { margin:0; font-size:19px; }
-  header p { margin:6px 0 0; font-size:12.5px; color:#a8adbb; }
-  main { max-width:760px; margin:0 auto; padding:20px 16px 70px; }
-  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:16px; }
+  :root { --bg:#0b0d14; --card:#121520; --card2:#0e1019; --line:#1f2333; --ink:#e7e9f2; --muted:#8a90a6;
+          --accent:#7c5cff; --accent2:#9b4dff; --ok:#33d6a6; --err:#ff6b6b; --gold:#e6b85c; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; background:var(--bg); color:var(--ink);
+    font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  button { font-family:inherit; cursor:pointer; }
+  input,select { font-family:inherit; }
+  .hidden { display:none !important; }
+
+  /* ---------- login ---------- */
+  #login { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+    background:radial-gradient(900px 400px at 50% -10%, #1b1f3a 0%, var(--bg) 70%); }
+  .box { width:100%; max-width:420px; background:var(--card); border:1px solid var(--line);
+    border-radius:20px; padding:26px 22px; }
+  .brand { display:flex; align-items:center; gap:14px; margin-bottom:22px; }
+  .logo { width:54px; height:54px; border-radius:15px; display:grid; place-items:center; font-size:26px;
+    font-weight:700; color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent2)); }
+  .brand h1 { margin:0; font-size:19px; }
+  .brand p { margin:3px 0 0; font-size:12.5px; color:var(--muted); }
+  label { display:block; font-size:12px; color:var(--muted); margin:14px 0 6px; }
+  .in { width:100%; padding:13px 14px; border-radius:12px; border:1px solid var(--line);
+    background:var(--card2); color:var(--ink); font-size:14.5px; outline:none; }
+  .in:focus { border-color:var(--accent); }
+  .btn { width:100%; padding:13px; border-radius:12px; border:0; font-size:15px; font-weight:600; margin-top:14px;
+    color:#fff; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+  .btn.ghost { background:var(--card2); border:1px solid var(--line); color:var(--ink); font-weight:500; }
+  .btn:disabled { opacity:.55; }
+  .sep { text-align:center; color:var(--muted); font-size:12px; margin:16px 0 2px; }
+  .msg { font-size:12.5px; margin-top:12px; min-height:16px; }
+  .msg.err { color:var(--err); } .msg.ok { color:var(--ok); }
+  .foot { text-align:center; color:var(--muted); font-size:11.5px; margin-top:20px; }
+
+  /* ---------- shell ---------- */
+  #app { min-height:100vh; }
+  .top { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; padding:12px 14px;
+    background:rgba(11,13,20,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
+  .burger { width:42px; height:42px; border-radius:12px; border:1px solid var(--line); background:var(--card);
+    color:var(--ink); font-size:20px; display:grid; place-items:center; }
+  .top .t { flex:1; min-width:0; }
+  .top .t b { display:block; font-size:16px; }
+  .top .t span { font-size:11.5px; color:var(--muted); }
+  .save { padding:10px 18px; border-radius:12px; border:0; color:#fff; font-weight:600; font-size:14px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+  .save:disabled { opacity:.5; }
+  main { max-width:820px; margin:0 auto; padding:16px 14px 80px; }
+
+  /* ---------- side sheet ---------- */
+  #scrim { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:40; opacity:0; pointer-events:none; transition:opacity .2s; }
+  #scrim.on { opacity:1; pointer-events:auto; }
+  #side { position:fixed; top:0; bottom:0; left:0; width:min(310px,84vw); z-index:50; background:#0d0f17;
+    border-right:1px solid var(--line); transform:translateX(-102%); transition:transform .22s ease;
+    display:flex; flex-direction:column; }
+  #side.on { transform:none; }
+  .who { display:flex; align-items:center; gap:12px; padding:18px 16px 14px; }
+  .who .logo { width:42px; height:42px; font-size:20px; border-radius:12px; }
+  .who b { display:block; font-size:15px; }
+  .who span { font-size:11.5px; color:var(--muted); word-break:break-all; }
+  nav { flex:1; overflow-y:auto; padding:6px 10px 12px; }
+  .grp { font-size:10.5px; letter-spacing:.08em; color:var(--muted); padding:14px 10px 6px; text-transform:uppercase; }
+  .item { width:100%; display:flex; align-items:center; gap:12px; padding:12px; margin:2px 0; border:0; border-radius:12px;
+    background:transparent; color:var(--ink); font-size:14.5px; text-align:left; }
+  .item .ic { width:24px; text-align:center; font-size:17px; }
+  .item.on { background:#1c1840; color:#c9bdff; }
+  .item.soon { color:#5f6580; }
+  .item small { margin-left:auto; font-size:10px; color:#5f6580; border:1px solid var(--line); padding:2px 7px; border-radius:20px; }
+  .out { margin:10px; }
+
+  /* ---------- cards ---------- */
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:14px; }
   .card h2 { margin:0 0 4px; font-size:15px; }
-  .card p.hint { margin:0 0 14px; font-size:12.5px; color:var(--muted); line-height:1.5; }
-  label { display:block; font-size:12px; font-weight:600; margin:10px 0 5px; }
-  input { width:100%; padding:10px 11px; border:1px solid var(--line); border-radius:9px;
-          font-size:14px; font-family:inherit; background:#fbfbfc; }
-  input[type=file] { padding:8px; font-size:12px; background:#fff; }
-  .row { display:flex; gap:12px; flex-wrap:wrap; }
-  .row > div { flex:1 1 150px; min-width:130px; }
-  button { margin-top:16px; width:100%; padding:13px; border:0; border-radius:11px;
-           background:var(--teal); color:#fff; font-size:15px; font-weight:600; cursor:pointer; }
-  button:disabled { background:#b9c2c7; cursor:wait; }
-  .note { font-size:12px; color:var(--muted); margin-top:10px; line-height:1.5; }
-  .ok { color:#0c8a72; font-weight:600; }
-  .err { color:#d33a2c; font-weight:600; }
-  code { background:#f1f3f6; padding:1px 5px; border-radius:5px; font-size:12px; }
-  .tier { border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px; background:#fcfcfd; }
-  .tier h3 { margin:0 0 4px; font-size:14px; color:var(--gold); }
-  .thumb { width:100%; height:64px; object-fit:contain; background:#f1f3f6; border-radius:8px; margin-top:6px; }
+  .card .hint { margin:0 0 12px; font-size:12.5px; color:var(--muted); line-height:1.55; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  .tabs { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:12px; }
+  .tab { padding:9px 16px; border-radius:30px; border:1px solid var(--line); background:var(--card2);
+    color:var(--muted); font-size:13px; white-space:nowrap; }
+  .tab.on { color:#fff; border-color:var(--accent); background:#1c1840; }
+  .pic { display:flex; align-items:center; gap:12px; margin-top:6px; }
+  .pic img { width:64px; height:64px; object-fit:contain; border-radius:12px; background:var(--card2); border:1px solid var(--line); }
+  .pic input[type=file] { flex:1; font-size:12px; color:var(--muted); min-width:0; }
+  .badge { display:inline-block; font-size:11px; padding:3px 9px; border-radius:20px; background:#16382f; color:var(--ok); }
+  .toast { position:fixed; left:50%; bottom:22px; transform:translateX(-50%); background:#1d2133; border:1px solid var(--line);
+    padding:12px 18px; border-radius:14px; font-size:13.5px; z-index:80; max-width:90vw; }
+  .toast.ok { border-color:#1f6b57; } .toast.err { border-color:#7a2f2f; }
 </style>
 </head>
 <body>
-<header>
-  <h1>Panel Developer VenderLive</h1>
-  <p>Saldo dompet, harga SVIP, dan aset SVIP langsung ke aplikasi.</p>
-</header>
-<main>
 
-  <div class="card">
-    <h2>Dompet</h2>
-    <p class="hint">Saldo yang dibaca aplikasi. Isi 0 untuk mengosongkan.</p>
-    <div class="row">
-      <div><label for="coins">Koin</label><input id="coins" type="number" min="0" value="0"></div>
-      <div><label for="diamonds">Berlian</label><input id="diamonds" type="number" min="0" value="0"></div>
-      <div><label for="dp">Berlian per tukar</label><input id="dp" type="number" min="1" value="100"></div>
-      <div><label for="cp">Koin didapat</label><input id="cp" type="number" min="1" value="33"></div>
+<!-- ============ LOGIN ============ -->
+<section id="login">
+  <div class="box">
+    <div class="brand">
+      <div class="logo">V</div>
+      <div><h1>VenderLive Panel</h1><p>Panel developer VenderLive</p></div>
     </div>
+    <label for="em">Email admin</label>
+    <input id="em" class="in" type="email" placeholder="nama@email.com" autocomplete="username">
+    <label for="pw">Password</label>
+    <input id="pw" class="in" type="password" placeholder="Password" autocomplete="current-password">
+    <button id="forgot" class="btn ghost" style="padding:9px;font-size:13px;margin-top:12px">Lupa sandi?</button>
+    <button id="go" class="btn">Masuk</button>
+    <div class="sep">atau</div>
+    <button id="goog" class="btn ghost">Masuk dengan Google</button>
+    <div id="lmsg" class="msg"></div>
+    <div class="foot">Hanya akun yang terdaftar yang bisa membuka panel ini.</div>
+  </div>
+</section>
+
+<!-- ============ APP ============ -->
+<section id="app" class="hidden">
+  <div class="top">
+    <button class="burger" id="menu" aria-label="Menu">&#9776;</button>
+    <div class="t"><b id="ttl">SVIP</b><span id="sub">Dashboard / SVIP</span></div>
+    <button class="save" id="save">Simpan</button>
   </div>
 
-  <div class="card">
-    <h2>SVIP</h2>
-    <p class="hint">Atur harga setiap level, hadiah koin mingguan, dan unggah medali, label, serta bingkai avatar. Unggahan tersimpan di <code>docs/svip/</code> dan langsung dipakai aplikasi.</p>
-    <div id="tiers"></div>
-  </div>
+  <div id="scrim"></div>
+  <aside id="side">
+    <div class="who">
+      <div class="logo">V</div>
+      <div><b>VenderLive Panel</b><span id="meMail">-</span></div>
+    </div>
+    <nav id="nav"></nav>
+    <button class="btn ghost out" id="logout">Keluar</button>
+  </aside>
 
-  <div class="card">
-    <h2>Simpan</h2>
-    <p class="hint">Butuh token GitHub dengan izin <code>repo</code>. Token hanya dipakai di browser ini.</p>
-    <label for="token">Token GitHub</label>
-    <input id="token" type="password" placeholder="ghp_...">
-    <button id="save">Simpan ke Aplikasi</button>
-    <div id="status" class="note"></div>
-  </div>
+  <main id="view"></main>
+</section>
 
-  <div class="card">
-    <h2>Status</h2>
-    <div id="current" class="note">Memuat...</div>
-  </div>
+<div id="toast" class="toast hidden"></div>
 
-</main>
-<script>
-const OWNER = "exbottod", REPO = "liveroom-android", BRANCH = "main";
-const WALLET_PATH = "docs/wallet.json", SVIP_PATH = "docs/svip.json";
-const api = (path) => `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
-const raw = (path) => `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${path}?t=${Date.now()}`;
-const page = (path) => `https://${OWNER}.github.io/${REPO}/${path}`;
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider,
+         sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAn5YG1LeeICQurRn_qyQtkSgPaup_Azd8",
+  authDomain: "test-app-94b28.firebaseapp.com",
+  projectId: "test-app-94b28",
+  storageBucket: "test-app-94b28.firebasestorage.app",
+  messagingSenderId: "383929756819",
+  appId: "1:383929756819:android:2a6cc966ba67730bf4f166",
+});
+const auth = getAuth(app), db = getFirestore(app), storage = getStorage(app);
 const $ = (id) => document.getElementById(id);
 
-const DEFAULT_LEVELS = [1, 2, 3, 4, 5, 6].map((n) => ({
-  level: n, price: 0, weeklyCoins: 0, score: 0, medalUrl: "", labelUrl: "", frameUrl: "",
-}));
+/* ---------- menu: only SVIP is live for now, the rest are placeholders ---------- */
+const MENU = [
+  { g:"Utama", items:[ { id:"svip", ic:"👑", label:"SVIP", live:true }, { id:"dompet", ic:"👛", label:"Dompet" } ] },
+  { g:"Pengguna", items:[ { id:"user", ic:"👥", label:"User" }, { id:"room", ic:"🎤", label:"Room" } ] },
+  { g:"Konten", items:[ { id:"gift", ic:"🎁", label:"Gift" }, { id:"banner", ic:"🖼️", label:"Frame & banner" },
+                        { id:"emote", ic:"😀", label:"Emote room" } ] },
+  { g:"Sistem", items:[ { id:"cs", ic:"💬", label:"Customer Service" }, { id:"log", ic:"📜", label:"Log admin" } ] },
+];
+let page = "svip", state = { levels: [], tab: 1 };
+let dirty = false;
 
-let levels = [];
+function toast(text, kind="ok") {
+  const t = $("toast"); t.textContent = text; t.className = "toast " + kind;
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.add("hidden"), 3600);
+}
+function openSide(on) { $("side").classList.toggle("on", on); $("scrim").classList.toggle("on", on); }
 
-function renderTiers() {
-  const box = $("tiers");
-  box.innerHTML = "";
-  levels.forEach((tier, index) => {
-    const wrap = document.createElement("div");
-    wrap.className = "tier";
-    wrap.innerHTML = `
-      <h3>SVIP ${tier.level}</h3>
-      <div class="row">
-        <div><label>Harga (IDR)</label><input data-i="${index}" data-f="price" type="number" min="0" value="${tier.price}"></div>
-        <div><label>Hadiah koin mingguan</label><input data-i="${index}" data-f="weeklyCoins" type="number" min="0" value="${tier.weeklyCoins}"></div>
-        <div><label>Poin naik level</label><input data-i="${index}" data-f="score" type="number" min="0" value="${tier.score}"></div>
+function buildNav() {
+  $("nav").innerHTML = MENU.map((s) => `<div class="grp">${s.g}</div>` + s.items.map((i) =>
+    `<button class="item ${i.id===page?"on":""} ${i.live?"":"soon"}" data-id="${i.id}">
+       <span class="ic">${i.ic}</span>${i.label}${i.live?"":"<small>segera</small>"}</button>`).join("")).join("");
+  $("nav").querySelectorAll(".item").forEach((b) => b.onclick = () => go(b.dataset.id));
+}
+function go(id) {
+  const item = MENU.flatMap((s) => s.items).find((i) => i.id === id);
+  page = id; openSide(false); buildNav();
+  $("ttl").textContent = item.label; $("sub").textContent = "Dashboard / " + item.label;
+  $("save").classList.toggle("hidden", !item.live);
+  render();
+}
+
+/* ---------- SVIP page ---------- */
+const DEFAULTS = [1,2,3,4,5,6].map((n) => ({ level:n, price:0, score:0, weeklyCoins:0, medalUrl:"", labelUrl:"", frameUrl:"" }));
+
+async function loadSvip() {
+  const snap = await getDoc(doc(db, "pub", "svip"));
+  const levels = snap.exists() && Array.isArray(snap.data().levels) && snap.data().levels.length
+    ? snap.data().levels : DEFAULTS;
+  state.levels = levels.map((l) => ({ ...l }));
+  if (!state.levels.find((l) => l.level === state.tab)) state.tab = state.levels[0].level;
+}
+
+function render() {
+  const v = $("view");
+  if (page !== "svip") {
+    const item = MENU.flatMap((s) => s.items).find((i) => i.id === page);
+    v.innerHTML = `<div class="card"><h2>${item.label}</h2><p class="hint">Halaman ini segera hadir. Untuk sekarang yang aktif baru panel SVIP.</p></div>`;
+    return;
+  }
+  const t = state.levels.find((l) => l.level === state.tab);
+  v.innerHTML = `
+    <div class="tabs">${state.levels.map((l) => `<button class="tab ${l.level===state.tab?"on":""}" data-l="${l.level}">SVIP${l.level}</button>`).join("")}</div>
+    <div class="card">
+      <h2>SVIP${t.level} <span class="badge">aktif</span></h2>
+      <p class="hint">Harga, poin naik level, dan hadiah koin mingguan untuk level ini. Disimpan ke database dan langsung dibaca aplikasi, tanpa build ulang.</p>
+      <div class="grid">
+        <div><label>Harga (IDR)</label><input class="in" data-f="price" type="number" min="0" value="${t.price}"></div>
+        <div><label>Poin naik level</label><input class="in" data-f="score" type="number" min="0" value="${t.score}"></div>
+        <div><label>Hadiah koin mingguan</label><input class="in" data-f="weeklyCoins" type="number" min="0" value="${t.weeklyCoins}"></div>
       </div>
-      <div class="row">
-        <div>
-          <label>Medali SVIP (gambar)</label>
-          <input data-i="${index}" data-f="medalFile" type="file" accept="image/*">
-          <img class="thumb" alt="" src="${tier.medalUrl || ""}">
-        </div>
-        <div>
-          <label>Label SVIP (gambar)</label>
-          <input data-i="${index}" data-f="labelFile" type="file" accept="image/*">
-          <img class="thumb" alt="" src="${tier.labelUrl || ""}">
-        </div>
-        <div>
-          <label>Bingkai avatar (gambar)</label>
-          <input data-i="${index}" data-f="frameFile" type="file" accept="image/*">
-          <img class="thumb" alt="" src="${tier.frameUrl || ""}">
-        </div>
-      </div>`;
-    box.appendChild(wrap);
-  });
-  box.querySelectorAll("input[type=number]").forEach((input) => {
-    input.addEventListener("input", (event) => {
-      const { i, f } = event.target.dataset;
-      levels[i][f] = Number(event.target.value || 0);
-    });
+    </div>
+    ${["medal:Medali SVIP","label:Label SVIP","frame:Bingkai avatar"].map((s) => { const [k,n]=s.split(":"); const u=t[k+"Url"];
+      return `<div class="card"><h2>${n}</h2><p class="hint">Gambar PNG atau WebP transparan, ukuran bebas.</p>
+        <div class="pic"><img alt="" src="${u||""}" ${u?"":'style="visibility:hidden"'}>
+        <input type="file" accept="image/*" data-up="${k}"></div></div>`; }).join("")}
+  `;
+  v.querySelectorAll(".tab").forEach((b) => b.onclick = () => { state.tab = Number(b.dataset.l); render(); });
+  v.querySelectorAll("input[data-f]").forEach((i) => i.oninput = () => { t[i.dataset.f] = Number(i.value || 0); dirty = true; });
+  v.querySelectorAll("input[data-up]").forEach((i) => i.onchange = async () => {
+    const file = i.files[0]; if (!file) return;
+    try {
+      toast("Mengunggah gambar...", "ok");
+      const ext = (file.name.split(".").pop() || "png").toLowerCase();
+      const r = ref(storage, `svip/lv${t.level}_${i.dataset.up}_${Date.now()}.${ext}`);
+      await uploadBytes(r, file);
+      t[i.dataset.up + "Url"] = await getDownloadURL(r);
+      dirty = true; render(); toast("Gambar terunggah. Tekan Simpan.", "ok");
+    } catch (e) { toast("Gagal unggah: " + e.message, "err"); }
   });
 }
 
-async function loadCurrent() {
+async function saveSvip() {
+  const b = $("save"); b.disabled = true;
   try {
-    const res = await fetch(raw(WALLET_PATH));
-    if (res.ok) {
-      const data = await res.json();
-      $("coins").value = data.coins ?? 0;
-      $("diamonds").value = data.diamonds ?? 0;
-      $("dp").value = data.diamondsPerTrade ?? 100;
-      $("cp").value = data.coinsPerTrade ?? 33;
-    }
-    const svipRes = await fetch(raw(SVIP_PATH));
-    if (svipRes.ok) {
-      const data = await svipRes.json();
-      if (Array.isArray(data.levels) && data.levels.length) levels = data.levels;
-    }
-    if (!levels.length) levels = DEFAULT_LEVELS;
-    renderTiers();
-    $("current").innerHTML = '<span class="ok">Terbaca.</span> Data dompet dan SVIP siap diubah.';
-  } catch (e) {
-    levels = DEFAULT_LEVELS;
-    renderTiers();
-    $("current").innerHTML = `<span class="err">Gagal membaca:</span> ${e.message}`;
-  }
-}
-
-function base64(bytes) {
-  let bin = "";
-  new Uint8Array(bytes).forEach((b) => (bin += String.fromCharCode(b)));
-  return btoa(bin);
-}
-
-async function putFile(token, path, file) {
-  const head = await fetch(`${api(path)}?ref=${BRANCH}`, {
-    headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" },
-  });
-  const sha = head.ok ? (await head.json()).sha : undefined;
-  const res = await fetch(api(path), {
-    method: "PUT",
-    headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: `Panel: unggah ${path}`, content: base64(await file.arrayBuffer()),
-      branch: BRANCH, ...(sha ? { sha } : {}),
-    }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `gagal unggah ${path}`);
-  }
-  return page(path);
-}
-
-async function putJson(token, path, payload) {
-  const head = await fetch(`${api(path)}?ref=${BRANCH}`, {
-    headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" },
-  });
-  const sha = head.ok ? (await head.json()).sha : undefined;
-  const res = await fetch(api(path), {
-    method: "PUT",
-    headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: "Panel: perbarui " + path, content: base64(new TextEncoder().encode(JSON.stringify(payload, null, 2))),
-      branch: BRANCH, ...(sha ? { sha } : {}),
-    }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `gagal menulis ${path}`);
-  }
-}
-
-$("save").addEventListener("click", async () => {
-  const token = $("token").value.trim();
-  const status = $("status");
-  if (!token) { status.innerHTML = '<span class="err">Token masih kosong.</span>'; return; }
-  const button = $("save");
-  button.disabled = true;
-
-  try {
-    // Uploads first, so the JSON points at pictures that already exist.
-    for (let i = 0; i < levels.length; i += 1) {
-      const tier = levels[i];
-      for (const [field, name] of [["medalFile", "medal"], ["labelFile", "label"], ["frameFile", "frame"]]) {
-        const input = document.querySelector(`input[data-i="${i}"][data-f="${field}"]`);
-        const file = input && input.files && input.files[0];
-        if (!file) continue;
-        status.textContent = `Mengunggah ${name} SVIP ${tier.level}...`;
-        const url = await putFile(token, `docs/svip/lv${tier.level}_${name}.${(file.name.split(".").pop() || "png").toLowerCase()}`, file);
-        tier[name === "medal" ? "medalUrl" : name === "label" ? "labelUrl" : "frameUrl"] = url;
-      }
-    }
-
-    status.textContent = "Menyimpan data...";
-    await putJson(token, WALLET_PATH, {
-      coins: Number($("coins").value || 0),
-      diamonds: Number($("diamonds").value || 0),
-      diamondsPerTrade: Number($("dp").value || 100),
-      coinsPerTrade: Number($("cp").value || 33),
-      updated: new Date().toISOString().slice(0, 10),
+    await setDoc(doc(db, "pub", "svip"), {
+      levels: state.levels.map((l) => ({ level:l.level, price:+l.price||0, score:+l.score||0, weeklyCoins:+l.weeklyCoins||0,
+        medalUrl:l.medalUrl||"", labelUrl:l.labelUrl||"", frameUrl:l.frameUrl||"" })),
+      updatedAt: Date.now(),
     });
-    await putJson(token, SVIP_PATH, {
-      levels: levels.map((tier) => ({
-        level: tier.level, price: Number(tier.price || 0), score: Number(tier.score || 0),
-        weeklyCoins: Number(tier.weeklyCoins || 0),
-        medalUrl: tier.medalUrl || "", labelUrl: tier.labelUrl || "", frameUrl: tier.frameUrl || "",
-      })),
-      updated: new Date().toISOString().slice(0, 10),
-    });
-
-    status.innerHTML = '<span class="ok">Tersimpan.</span> Tunggu 1 sampai 2 menit, lalu tutup dan buka aplikasinya.';
-    setTimeout(loadCurrent, 3000);
+    dirty = false; toast("Tersimpan. Aplikasi langsung memakai data baru.", "ok");
   } catch (e) {
-    status.innerHTML = `<span class="err">Gagal:</span> ${e.message}`;
-  } finally {
-    button.disabled = false;
-  }
+    toast(e.code === "permission-denied" ? "Akun ini bukan admin, tidak boleh menyimpan." : "Gagal: " + e.message, "err");
+  } finally { b.disabled = false; }
+}
+
+/* ---------- auth ---------- */
+const lmsg = (t, k="err") => { $("lmsg").textContent = t; $("lmsg").className = "msg " + k; };
+const authText = (e) => ({ "auth/invalid-credential":"Email atau password salah.", "auth/invalid-email":"Format email salah.",
+  "auth/user-not-found":"Akun tidak terdaftar.", "auth/wrong-password":"Password salah.", "auth/too-many-requests":"Terlalu banyak percobaan, coba lagi nanti.",
+  "auth/popup-closed-by-user":"Login Google dibatalkan." }[e.code] || e.message);
+
+$("go").onclick = async () => {
+  const email = $("em").value.trim(), pw = $("pw").value;
+  if (!email || !pw) return lmsg("Isi email dan password.");
+  $("go").disabled = true; lmsg("Masuk...", "ok");
+  try { await signInWithEmailAndPassword(auth, email, pw); } catch (e) { lmsg(authText(e)); } finally { $("go").disabled = false; }
+};
+$("goog").onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) { lmsg(authText(e)); } };
+$("forgot").onclick = async () => {
+  const email = $("em").value.trim(); if (!email) return lmsg("Isi email dulu, lalu tekan Lupa sandi.");
+  try { await sendPasswordResetEmail(auth, email); lmsg("Tautan reset dikirim ke email itu.", "ok"); } catch (e) { lmsg(authText(e)); }
+};
+$("logout").onclick = () => signOut(auth);
+$("menu").onclick = () => openSide(true);
+$("scrim").onclick = () => openSide(false);
+$("save").onclick = () => saveSvip();
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { $("app").classList.add("hidden"); $("login").classList.remove("hidden"); return; }
+  $("login").classList.add("hidden"); $("app").classList.remove("hidden");
+  $("meMail").textContent = user.email || "";
+  buildNav(); go("svip");
+  try { await loadSvip(); render(); }
+  catch (e) { toast(e.code === "permission-denied" ? "Akun ini belum diizinkan membaca data." : "Gagal memuat: " + e.message, "err"); }
 });
-
-loadCurrent();
+window.addEventListener("beforeunload", (e) => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
 </script>
 </body>
 </html>
