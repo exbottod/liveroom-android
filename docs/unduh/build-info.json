@@ -1,4 +1,4 @@
 {
-  "versi": "0.1.42",
-  "catatan": "Panel developer baru: login, menu samping, SVIP via Firestore (v0.1.42)"
+  "versi": "0.1.43",
+  "catatan": "Profil orang lain: kunci navigasi supaya id kosong tidak menutup aplikasi (v0.1.43)"
 }
