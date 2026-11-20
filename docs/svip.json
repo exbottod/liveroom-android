@@ -1,0 +1,11 @@
+{
+  "levels": [
+    { "level": 1, "price": 18000, "score": 80000000, "weeklyCoins": 2000, "medalUrl": "", "labelUrl": "", "frameUrl": "" },
+    { "level": 2, "price": 91000, "score": 200000000, "weeklyCoins": 6000, "medalUrl": "", "labelUrl": "", "frameUrl": "" },
+    { "level": 3, "price": 229000, "score": 480000000, "weeklyCoins": 15000, "medalUrl": "", "labelUrl": "", "frameUrl": "" },
+    { "level": 4, "price": 459000, "score": 1000000000, "weeklyCoins": 32000, "medalUrl": "", "labelUrl": "", "frameUrl": "" },
+    { "level": 5, "price": 899000, "score": 2000000000, "weeklyCoins": 70000, "medalUrl": "", "labelUrl": "", "frameUrl": "" },
+    { "level": 6, "price": 1790000, "score": 4000000000, "weeklyCoins": 150000, "medalUrl": "", "labelUrl": "", "frameUrl": "" }
+  ],
+  "updated": "2026-11-20"
+}

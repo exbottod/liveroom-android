@@ -103,6 +103,10 @@ fun HomeScreen(
                                 onOpenProfile(id)
                             },
                         )
+                        "SVIP" -> com.venderlive.app.ui.svip.SvipScreen(
+                            onBack = { openPage = null },
+                            onOpenWallet = { openPage = "Dompet" },
+                        )
                         "Dompet" -> com.venderlive.app.ui.wallet.WalletScreen(
                             onBack = { openPage = null },
                         )
