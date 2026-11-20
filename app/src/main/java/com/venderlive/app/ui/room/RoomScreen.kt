@@ -52,11 +52,17 @@ private val HostSize = 84.dp
 fun RoomScreen(
     viewModel: RoomViewModel,
     onExit: () -> Unit,
+    onOpenProfile: (String) -> Unit = {},
 ) {
     val state by viewModel.state.collectAsState()
     RoomContent(
         state = state,
-        onSeatClick = viewModel::onSeatClick,
+        // An occupied seat opens that person's profile; an empty one still does the
+        // normal join/leave behaviour.
+        onSeatClick = { seat ->
+            val who = seat.userId
+            if (seat.occupied && who != null) onOpenProfile(who) else viewModel.onSeatClick(seat)
+        },
         onTabSelected = viewModel::selectTab,
         onDismissBanner = viewModel::dismissExpBanner,
         onToggleSpeaker = viewModel::toggleSpeaker,

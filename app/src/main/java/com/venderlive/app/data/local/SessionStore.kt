@@ -15,6 +15,9 @@ data class CachedProfile(
     val nickname: String? = null,
     val gender: String? = null,
     val publicId: String? = null,
+    val bio: String? = null,
+    val country: String? = null,
+    val avatar: String? = null,
     val completed: Boolean = false,
 )
 
@@ -27,6 +30,9 @@ class SessionStore(private val context: Context) {
     private val keyGender = stringPreferencesKey("gender")
     private val keyPublicId = stringPreferencesKey("public_id")
     private val keyProfileDone = booleanPreferencesKey("profile_done")
+    private val keyBio = stringPreferencesKey("bio")
+    private val keyCountry = stringPreferencesKey("country")
+    private val keyAvatar = stringPreferencesKey("avatar")
 
     suspend fun accessToken(): String? =
         context.dataStore.data.first()[keyToken]
@@ -60,6 +66,9 @@ class SessionStore(private val context: Context) {
             if (!user.nickname.isNullOrBlank()) it[keyNickname] = user.nickname
             if (!user.gender.isNullOrBlank()) it[keyGender] = user.gender
             if (!user.publicId.isNullOrBlank()) it[keyPublicId] = user.publicId
+            it[keyBio] = user.bio.orEmpty()
+            it[keyCountry] = user.country.orEmpty()
+            it[keyAvatar] = user.avatar.orEmpty()
             // A brand new account still has to pick a name and gender, even when the
             // server hands out a placeholder nickname.
             // The server says is_new until a name and gender were saved, so an account
@@ -74,6 +83,9 @@ class SessionStore(private val context: Context) {
             nickname = prefs[keyNickname],
             gender = prefs[keyGender],
             publicId = prefs[keyPublicId],
+            bio = prefs[keyBio]?.takeIf { it.isNotBlank() },
+            country = prefs[keyCountry]?.takeIf { it.isNotBlank() },
+            avatar = prefs[keyAvatar]?.takeIf { it.isNotBlank() },
             completed = prefs[keyProfileDone] ?: false,
         )
     }

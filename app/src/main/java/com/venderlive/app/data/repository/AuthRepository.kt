@@ -5,6 +5,9 @@ import com.venderlive.app.data.local.SessionStore
 import com.venderlive.app.data.model.AuthResult
 import com.venderlive.app.data.model.BlockedUser
 import com.venderlive.app.data.model.LinkRequest
+import com.venderlive.app.data.model.OtherProfile
+import com.venderlive.app.data.model.ProfileEditRequest
+import com.venderlive.app.data.model.AvatarRequest
 import com.venderlive.app.data.model.FirebaseLoginRequest
 import com.venderlive.app.data.model.OtpRequest
 import com.venderlive.app.data.model.OtpVerifyRequest
@@ -153,6 +156,25 @@ class AuthRepository(
             ?.let { it.code == 0 }
             ?: false
         return synced
+    }
+
+    /** Profile page for anyone whose nickname is tapped, including ourselves. */
+    suspend fun profile(publicId: String): OtherProfile =
+        readingServerMessage { api.profile(publicId) }.data
+            ?: error("Profil tidak ditemukan")
+
+    /** Save the pencil edits. The local cache is updated so the Aku tab follows along. */
+    suspend fun editProfile(nickname: String?, bio: String?, country: String?) {
+        val response = readingServerMessage { api.editProfile(ProfileEditRequest(nickname, bio, country)) }
+        val user = response.data
+        if (user != null) sessionStore.cacheServerProfile(user)
+    }
+
+    suspend fun uploadAvatar(jpeg: ByteArray) {
+        val base64 = android.util.Base64.encodeToString(jpeg, android.util.Base64.NO_WRAP)
+        val response = readingServerMessage { api.uploadAvatar(AvatarRequest(base64)) }
+        val user = response.data
+        if (user != null) sessionStore.cacheServerProfile(user)
     }
 
     /** Sign-in methods tied to this account, e.g. google=true, telegram=false. */

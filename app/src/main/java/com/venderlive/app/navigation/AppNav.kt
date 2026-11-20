@@ -13,6 +13,7 @@ import com.venderlive.app.App
 import com.venderlive.app.ui.home.HomeScreen
 import com.venderlive.app.ui.login.LoginScreen
 import com.venderlive.app.ui.login.LoginViewModel
+import com.venderlive.app.ui.profile.ProfileDetailScreen
 import com.venderlive.app.ui.profile.ProfileSetupScreen
 import com.venderlive.app.ui.profile.ProfileSetupViewModel
 import com.venderlive.app.ui.room.RoomScreen
@@ -24,6 +25,7 @@ private object Route {
     const val PROFILE_SETUP = "profile_setup"
     const val HOME = "home"
     const val ROOM = "room/{roomId}"
+    const val PROFILE = "profile/{publicId}"
 }
 
 @Composable
@@ -102,6 +104,7 @@ fun AppNav() {
                 gender = cached?.gender,
                 authRepository = app.authRepository,
                 onOpenRoom = { id -> navController.navigate("room/$id") },
+                onOpenProfile = { id -> navController.navigate("profile/$id") },
                 onLogout = {
                     scope.launch {
                         app.authRepository.logout()
@@ -116,7 +119,11 @@ fun AppNav() {
         composable(Route.ROOM) { entry ->
             val roomId = entry.arguments?.getString("roomId").orEmpty()
             val vm: RoomViewModel = viewModel { RoomViewModel(roomId) }
-            RoomScreen(viewModel = vm, onExit = { navController.popBackStack() })
+            RoomScreen(
+                viewModel = vm,
+                onExit = { navController.popBackStack() },
+                onOpenProfile = { id -> navController.navigate("profile/$id") },
+            )
         }
     }
 }

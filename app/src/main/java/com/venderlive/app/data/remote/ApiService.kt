@@ -4,7 +4,10 @@ import com.venderlive.app.data.model.ApiEnvelope
 import com.venderlive.app.data.model.AuthResult
 import com.venderlive.app.data.model.BlockedUser
 import com.venderlive.app.data.model.LinkRequest
+import com.venderlive.app.data.model.AvatarRequest
 import com.venderlive.app.data.model.LinkState
+import com.venderlive.app.data.model.OtherProfile
+import com.venderlive.app.data.model.ProfileEditRequest
 import com.venderlive.app.data.model.FirebaseLoginRequest
 import com.venderlive.app.data.model.OtpRequest
 import com.venderlive.app.data.model.OtpVerifyRequest
@@ -14,6 +17,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PATCH
 import retrofit2.http.Path
 
 /**
@@ -37,6 +41,17 @@ interface ApiService {
     /** First-run profile: the name and gender the user picks before entering the app. */
     @POST("v1/profile")
     suspend fun updateProfile(@Body body: ProfileUpdateRequest): ApiEnvelope<UserProfile>
+
+    /** Public profile opened from a room seat or from the Aku tab. */
+    @GET("v1/users/{publicId}")
+    suspend fun profile(@Path("publicId") publicId: String): ApiEnvelope<OtherProfile>
+
+    /** Pencil edits: name, bio, country flag. */
+    @PATCH("v1/profile")
+    suspend fun editProfile(@Body body: ProfileEditRequest): ApiEnvelope<UserProfile>
+
+    @POST("v1/profile/avatar")
+    suspend fun uploadAvatar(@Body body: AvatarRequest): ApiEnvelope<UserProfile>
 
     /** Which sign-in methods are tied to this account. */
     @GET("v1/account/links")

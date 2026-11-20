@@ -51,6 +51,7 @@ fun HomeScreen(
     authRepository: com.venderlive.app.data.repository.AuthRepository,
     onLogout: () -> Unit,
     onOpenRoom: (String) -> Unit = {},
+    onOpenProfile: (String) -> Unit = {},
 ) {
     var tab by remember { mutableStateOf(0) }
     // Page opened from the Aku tab: null = none, "Pengaturan" = settings, else coming soon.
@@ -86,6 +87,10 @@ fun HomeScreen(
                             gender = gender,
                             stats = ProfileStats(),
                             onMenuClick = { openPage = it },
+                            onOpenProfile = {
+                                val id = publicId?.takeIf { it.isNotBlank() } ?: return@ProfileScreen
+                                onOpenProfile(id)
+                            },
                         )
                         "Pengaturan" -> com.venderlive.app.ui.profile.SettingsHome(
                             repo = authRepository,

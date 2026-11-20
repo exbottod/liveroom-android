@@ -52,6 +52,7 @@ fun ProfileScreen(
     gender: String? = null,
     stats: ProfileStats = ProfileStats(),
     onMenuClick: (String) -> Unit = {},
+    onOpenProfile: () -> Unit = {},
 ) {
     val primaryMenu = listOf(
         MenuItem(R.drawable.ic_wallet, "Dompet"),
@@ -94,7 +95,7 @@ fun ProfileScreen(
                 .padding(bottom = 16.dp),
         ) {
             Spacer(Modifier.height(48.dp))
-            ProfileHeader(nickname = nickname, displayId = displayId, gender = gender)
+            ProfileHeader(nickname = nickname, displayId = displayId, gender = gender, onClick = onOpenProfile)
             Spacer(Modifier.height(18.dp))
             StatsRow(stats)
             Spacer(Modifier.height(18.dp))
@@ -110,9 +111,9 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun ProfileHeader(nickname: String, displayId: String, gender: String?) {
+private fun ProfileHeader(nickname: String, displayId: String, gender: String?, onClick: () -> Unit) {
     Row(
-        modifier = Modifier.padding(horizontal = 20.dp),
+        modifier = Modifier.padding(horizontal = 20.dp).clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
