@@ -139,7 +139,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider,
          sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, getDocs, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
 
 const app = initializeApp({
@@ -156,12 +156,12 @@ const $ = (id) => document.getElementById(id);
 /* ---------- menu: only SVIP is live for now, the rest are placeholders ---------- */
 const MENU = [
   { g:"Utama", items:[ { id:"svip", ic:"👑", label:"SVIP", live:true }, { id:"dompet", ic:"👛", label:"Dompet" } ] },
-  { g:"Pengguna", items:[ { id:"user", ic:"👥", label:"User" }, { id:"room", ic:"🎤", label:"Room" } ] },
+  { g:"Pengguna", items:[ { id:"user", ic:"👥", label:"User", live:true }, { id:"room", ic:"🎤", label:"Room" } ] },
   { g:"Konten", items:[ { id:"gift", ic:"🎁", label:"Gift" }, { id:"banner", ic:"🖼️", label:"Frame & banner" },
                         { id:"emote", ic:"😀", label:"Emote room" } ] },
   { g:"Sistem", items:[ { id:"cs", ic:"💬", label:"Customer Service" }, { id:"log", ic:"📜", label:"Log admin" } ] },
 ];
-let page = "svip", state = { levels: [], tab: 1 };
+let page = "svip", state = { levels: [], tab: 1, users: null, q: "" };
 let dirty = false;
 
 function toast(text, kind="ok") {
@@ -180,8 +180,50 @@ function go(id) {
   const item = MENU.flatMap((s) => s.items).find((i) => i.id === id);
   page = id; openSide(false); buildNav();
   $("ttl").textContent = item.label; $("sub").textContent = "Dashboard / " + item.label;
-  $("save").classList.toggle("hidden", !item.live);
+  $("save").classList.toggle("hidden", item.id !== "svip");
   render();
+}
+
+
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
+/* ---------- User page: the copy of accounts kept in Firestore ---------- */
+async function renderUsers() {
+  const v = $("view");
+  if (!state.users) {
+    v.innerHTML = `<div class="card"><h2>User</h2><p class="hint">Memuat akun...</p></div>`;
+    try {
+      const snap = await getDocs(query(collection(db, "users"), orderBy("createdAt", "desc"), limit(300)));
+      state.users = snap.docs.map((d) => ({ key: d.id, ...d.data() }));
+    } catch (e) {
+      v.innerHTML = `<div class="card"><h2>User</h2><p class="hint">Gagal memuat akun: ${esc(e.code === "permission-denied" ? "akun ini bukan admin." : e.message)}</p></div>`;
+      return;
+    }
+    return renderUsers();
+  }
+  const q = state.q.trim().toLowerCase();
+  const rows = state.users.filter((u) => !q ||
+    [u.nickname, u.publicId, u.phone, u.gender].some((x) => String(x || "").toLowerCase().includes(q)));
+  v.innerHTML = `<div class="card">
+    <h2>User <span class="badge">${state.users.length} akun</span></h2>
+    <p class="hint">Salinan akun dari database. Diperbarui otomatis setiap ada yang mendaftar, masuk, atau mengubah profil.</p>
+    <input id="uq" class="in" placeholder="Cari nama, ID, atau nomor" value="${esc(state.q)}">
+    <div style="margin-top:12px">
+    ${rows.length ? rows.map((u) => `<div style="display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)">
+      <div class="logo" style="width:40px;height:40px;font-size:15px;border-radius:12px;overflow:hidden">${u.avatar ? `<img src="${esc(u.avatar)}" alt="" style="width:100%;height:100%;object-fit:cover">` : esc((u.nickname || "U").slice(0,1).toUpperCase())}</div>
+      <div style="flex:1;min-width:0">
+        <b style="font-size:14px">${esc(u.nickname || "Tanpa nama")}</b>
+        <div style="font-size:11.5px;color:var(--muted);word-break:break-word">ID ${esc(u.publicId || "-")}${u.gender ? " · " + (u.gender === "male" ? "Pria" : "Wanita") : ""}${u.phone ? " · " + esc(u.phone) : ""}</div>
+      </div>
+      <small style="font-size:10.5px;color:var(--muted)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString("id-ID") : "-"}</small>
+    </div>`).join("") : `<p class="hint">Belum ada akun yang cocok.</p>`}
+    </div></div>`;
+  const box = $("uq");
+  box.oninput = () => {
+    const caret = box.selectionStart;
+    state.q = box.value; renderUsers();
+    const again = $("uq"); if (again) { again.focus(); again.setSelectionRange(caret, caret); }
+  };
 }
 
 /* ---------- SVIP page ---------- */
@@ -197,6 +239,7 @@ async function loadSvip() {
 
 function render() {
   const v = $("view");
+  if (page === "user") { renderUsers(); return; }
   if (page !== "svip") {
     const item = MENU.flatMap((s) => s.items).find((i) => i.id === page);
     v.innerHTML = `<div class="card"><h2>${item.label}</h2><p class="hint">Halaman ini segera hadir. Untuk sekarang yang aktif baru panel SVIP.</p></div>`;
