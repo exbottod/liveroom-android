@@ -232,11 +232,13 @@ private fun ProfilePane(p: OtherProfile, isMe: Boolean, onInvite: () -> Unit) {
         }
         Spacer(Modifier.height(8.dp))
 
-        // ID and level badges
+        // ID and level badges. The context is captured here because it cannot be read
+        // inside the click lambda below.
+        val idContext = androidx.compose.ui.platform.LocalContext.current
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier.clip(RoundedCornerShape(6.dp)).background(Color(0xFFEDEFF3))
-                    .clickable { copyToClipboard(androidx.compose.ui.platform.LocalContext.current, "ID", p.publicId ?: p.id) }
+                    .clickable { copyToClipboard(idContext, "ID", p.publicId ?: p.id) }
                     .padding(horizontal = 10.dp, vertical = 4.dp),
             ) { Text("ID: ${p.publicId ?: p.id}", color = Ink, fontSize = 12.sp) }
             Spacer(Modifier.width(8.dp))
