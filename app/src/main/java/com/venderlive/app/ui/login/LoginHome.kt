@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -116,7 +117,8 @@ fun LoginHome(
             }
             Spacer(Modifier.height(16.dp))
             AgreementLine(onOpenTerms, onOpenPrivacy)
-            Spacer(Modifier.height(36.dp))
+            // Lift the text above the device's back/home buttons, plus a little extra room.
+            Spacer(Modifier.navigationBarsPadding().height(28.dp))
         }
     }
 }

@@ -89,17 +89,8 @@ fun LoginScreen(
         PhoneLoginScreen(viewModel, onLoggedIn, onBack = { phoneMode = false })
     } else {
         val context = LocalContext.current
-        val openPage: (String) -> Unit = { url ->
-            runCatching {
-                context.startActivity(
-                    android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)),
-                )
-            }.onFailure {
-                android.widget.Toast
-                    .makeText(context, "Tidak bisa membuka halaman", android.widget.Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
+        // Agreement and privacy pages open inside the app, not in Chrome.
+        var webPage by remember { mutableStateOf<Pair<String, String>?>(null) }
         val host = context as? android.app.Activity
         LoginHome(
             viewModel = viewModel,
@@ -107,9 +98,12 @@ fun LoginScreen(
             onPhone = { phoneMode = true },
             onGoogle = { host?.let(viewModel::signInWithGoogle) },
             onGuest = onGuest,
-            onOpenTerms = { openPage(TERMS_URL) },
-            onOpenPrivacy = { openPage(PRIVACY_URL) },
+            onOpenTerms = { webPage = "Perjanjian Pengguna" to TERMS_URL },
+            onOpenPrivacy = { webPage = "Kebijakan Privasi" to PRIVACY_URL },
         )
+        webPage?.let { (title, url) ->
+            InAppWebScreen(title = title, url = url, onClose = { webPage = null })
+        }
     }
 }
 
