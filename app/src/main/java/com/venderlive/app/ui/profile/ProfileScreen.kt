@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -112,6 +113,7 @@ fun ProfileScreen(
 
 @Composable
 private fun ProfileHeader(nickname: String, displayId: String, gender: String?, onClick: () -> Unit) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier.padding(horizontal = 20.dp).clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
@@ -148,10 +150,12 @@ private fun ProfileHeader(nickname: String, displayId: String, gender: String?, 
                 }
             }
             Spacer(Modifier.height(6.dp))
+            // The ID is short and people pass it around, so a tap copies it.
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
                     .background(Color.White.copy(alpha = 0.28f))
+                    .clickable { copyToClipboard(context, "ID", displayId) }
                     .padding(horizontal = 12.dp, vertical = 4.dp),
             ) {
                 Text(text = "ID: $displayId", color = Color.White, fontSize = 12.sp)

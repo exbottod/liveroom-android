@@ -236,6 +236,7 @@ private fun ProfilePane(p: OtherProfile, isMe: Boolean, onInvite: () -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier.clip(RoundedCornerShape(6.dp)).background(Color(0xFFEDEFF3))
+                    .clickable { copyToClipboard(context, "ID", p.publicId ?: p.id) }
                     .padding(horizontal = 10.dp, vertical = 4.dp),
             ) { Text("ID: ${p.publicId ?: p.id}", color = Ink, fontSize = 12.sp) }
             Spacer(Modifier.width(8.dp))
