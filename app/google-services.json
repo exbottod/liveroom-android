@@ -12,7 +12,12 @@
           "package_name": "com.company.devextes"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "383929756819-s5dipibhbtj59p6svb6qbup7ta90s5ka.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAn5YG1LeeICQurRn_qyQtkSgPaup_Azd8"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "383929756819-s5dipibhbtj59p6svb6qbup7ta90s5ka.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -31,7 +41,20 @@
           "package_name": "com.venderlive.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "383929756819-i8g4tacdsbtg3r8u2a0on2tpq8evkfb5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.venderlive.app",
+            "certificate_hash": "cd47624175427872d25a0606b772d52391a3df69"
+          }
+        },
+        {
+          "client_id": "383929756819-s5dipibhbtj59p6svb6qbup7ta90s5ka.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAn5YG1LeeICQurRn_qyQtkSgPaup_Azd8"
@@ -39,7 +62,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "383929756819-s5dipibhbtj59p6svb6qbup7ta90s5ka.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
