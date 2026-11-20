@@ -329,8 +329,27 @@ private val Languages = listOf(
 
 @Composable
 private fun LanguagePage(selected: String, onBack: () -> Unit, onPick: (String) -> Unit) {
+    var translator by remember { mutableStateOf(false) }
+    if (translator) {
+        TranslatorPage(appLanguage = selected, onBack = { translator = false })
+        return
+    }
     Page("Bahasa", onBack) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp)).background(Color(0xFFF4F6F8))
+                    .clickable { translator = true }
+                    .padding(horizontal = 18.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Penerjemah", color = Ink, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    Text("Terjemahkan teks ke bahasa lain", color = Muted, fontSize = 12.sp)
+                }
+                Text("Buka", color = Teal, fontSize = 13.sp)
+            }
+            Spacer(Modifier.height(10.dp))
             Languages.forEach { (code, name) ->
                 val on = code == selected
                 Row(
@@ -347,7 +366,7 @@ private fun LanguagePage(selected: String, onBack: () -> Unit, onPick: (String) 
                 }
             }
             Text(
-                "Terjemahan antarmuka lainnya segera hadir. Pilihanmu sudah tersimpan.",
+                "Bahasa aplikasi tersimpan. Untuk menerjemahkan kata atau pesan, buka Penerjemah di atas.",
                 color = Muted, fontSize = 12.sp, textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp),
             )
