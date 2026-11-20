@@ -150,10 +150,6 @@ private fun PhoneLoginScreen(
     val state by viewModel.state.collectAsState()
     val activity = LocalContext.current as? Activity
 
-    LaunchedEffect(state.loggedIn) {
-        state.loggedIn?.let(onLoggedIn)
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
