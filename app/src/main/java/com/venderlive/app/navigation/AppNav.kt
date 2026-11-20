@@ -1,6 +1,7 @@
 package com.venderlive.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -32,16 +33,25 @@ fun AppNav() {
     val app = context.applicationContext as App
     val scope = rememberCoroutineScope()
 
-    // Returning user with a finished profile opens straight on home; a signed-in user
-    // who never picked a name and gender opens on the profile screen instead.
+    // A finished account opens straight on home. Anything else, including a sign-up
+    // that was left half-finished, opens on the login tab: the profile screen belongs
+    // to the moment of registering, not to opening the app again.
     val startRoute = remember {
         runCatching {
             when {
                 app.authRepository.currentUserId() == null -> Route.LOGIN
-                app.authRepository.needsProfileSetup() -> Route.PROFILE_SETUP
+                app.authRepository.needsProfileSetup() -> Route.LOGIN
                 else -> Route.HOME
             }
         }.getOrDefault(Route.LOGIN)
+    }
+
+    // Drop the unfinished session so the login tab starts clean; the account itself
+    // stays on the server and signs back into the same ID.
+    LaunchedEffect(startRoute) {
+        if (startRoute == Route.LOGIN && app.authRepository.currentUserId() != null) {
+            app.authRepository.logout()
+        }
     }
 
     NavHost(navController = navController, startDestination = startRoute) {
