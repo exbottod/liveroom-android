@@ -62,6 +62,8 @@ class SessionStore(private val context: Context) {
             if (!user.publicId.isNullOrBlank()) it[keyPublicId] = user.publicId
             // A brand new account still has to pick a name and gender, even when the
             // server hands out a placeholder nickname.
+            // The server says is_new until a name and gender were saved, so an account
+            // that was left half-finished is asked again, and a finished one never is.
             it[keyProfileDone] = !user.isNew && !user.nickname.isNullOrBlank()
         }
     }
