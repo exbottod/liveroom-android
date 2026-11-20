@@ -103,6 +103,9 @@ fun HomeScreen(
                                 onOpenProfile(id)
                             },
                         )
+                        "Dompet" -> com.venderlive.app.ui.wallet.WalletScreen(
+                            onBack = { openPage = null },
+                        )
                         "Pengaturan" -> com.venderlive.app.ui.profile.SettingsHome(
                             repo = authRepository,
                             nickname = nickname?.takeIf { it.isNotBlank() } ?: "user_" + userId.takeLast(6),
