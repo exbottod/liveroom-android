@@ -293,9 +293,26 @@ async function saveSvip() {
 
 /* ---------- auth ---------- */
 const lmsg = (t, k="err") => { $("lmsg").textContent = t; $("lmsg").className = "msg " + k; };
-const authText = (e) => ({ "auth/invalid-credential":"Email atau password salah.", "auth/invalid-email":"Format email salah.",
-  "auth/user-not-found":"Akun tidak terdaftar.", "auth/wrong-password":"Password salah.", "auth/too-many-requests":"Terlalu banyak percobaan, coba lagi nanti.",
-  "auth/popup-closed-by-user":"Login Google dibatalkan." }[e.code] || e.message);
+const AUTH_TEXT = {
+  "auth/invalid-credential":"Email atau password salah.",
+  "auth/invalid-email":"Format email salah.",
+  "auth/user-not-found":"Akun tidak terdaftar.",
+  "auth/wrong-password":"Password salah.",
+  "auth/too-many-requests":"Terlalu banyak percobaan, coba lagi nanti.",
+  "auth/popup-closed-by-user":"Login Google dibatalkan.",
+  "auth/popup-blocked":"Browser memblokir jendela Google. Izinkan popup lalu coba lagi.",
+  "auth/cancelled-popup-request":"Jendela Google sebelumnya belum ditutup.",
+  "auth/network-request-failed":"Jaringan bermasalah, coba lagi.",
+  "auth/operation-not-allowed":"Metode masuk ini belum diaktifkan di Firebase Console.",
+  "auth/account-exists-with-different-credential":"Email ini sudah terdaftar dengan metode masuk lain.",
+  "auth/unauthorized-domain":"Domain exbottod.github.io belum diizinkan di Firebase. Buka Firebase Console, Authentication, Settings, Authorized domains, lalu tambahkan exbottod.github.io. Login email dan password tetap bisa dipakai sekarang.",
+  "auth/invalid-api-key":"Konfigurasi Firebase di panel salah.",
+  "auth/app-not-authorized":"Aplikasi ini belum diizinkan untuk project Firebase itu.",
+  "permission-denied":"Akun ini bukan admin panel.",
+};
+const authText = (e) => AUTH_TEXT[String(e?.code || "").replace(/^firebase:\s*/i, "")]
+  || AUTH_TEXT[String(e?.code || "").toLowerCase()]
+  || String(e?.message || e).replace(/^Firebase:\s*/i, "");
 
 $("go").onclick = async () => {
   const email = $("em").value.trim(), pw = $("pw").value;
@@ -303,7 +320,22 @@ $("go").onclick = async () => {
   $("go").disabled = true; lmsg("Masuk...", "ok");
   try { await signInWithEmailAndPassword(auth, email, pw); } catch (e) { lmsg(authText(e)); } finally { $("go").disabled = false; }
 };
-$("goog").onclick = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) { lmsg(authText(e)); } };
+$("goog").onclick = async () => {
+  $("goog").disabled = true; lmsg("Membuka Google...", "ok");
+  try {
+    await signInWithPopup(auth, new GoogleAuthProvider());
+  } catch (e) {
+    const domain = String(e?.code || "").includes("unauthorized-domain");
+    lmsg(authText(e), "err");
+    if (domain) {
+      const box = document.createElement("div");
+      box.className = "msg";
+      box.style.color = "var(--muted)";
+      box.textContent = "Langkah: Firebase Console, Authentication, Settings, Authorized domains, Add domain, tulis exbottod.github.io, simpan. Tunggu satu menit lalu muat ulang halaman ini.";
+      $("lmsg").after(box);
+    }
+  } finally { $("goog").disabled = false; }
+};
 $("forgot").onclick = async () => {
   const email = $("em").value.trim(); if (!email) return lmsg("Isi email dulu, lalu tekan Lupa sandi.");
   try { await sendPasswordResetEmail(auth, email); lmsg("Tautan reset dikirim ke email itu.", "ok"); } catch (e) { lmsg(authText(e)); }
