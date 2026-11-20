@@ -100,6 +100,7 @@ fun AppNav() {
                 nickname = cached?.nickname,
                 publicId = cached?.publicId,
                 gender = cached?.gender,
+                authRepository = app.authRepository,
                 onOpenRoom = { id -> navController.navigate("room/$id") },
                 onLogout = {
                     scope.launch {

@@ -61,29 +61,3 @@ fun ComingSoonScreen(title: String, onBack: () -> Unit) {
         }
     }
 }
-
-/** Pengaturan: logout lives here; the other settings will be added later. */
-@Composable
-fun SettingsScreen(onBack: () -> Unit, onLogout: () -> Unit) {
-    PageScaffold("Pengaturan", onBack) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            Text(
-                "Pengaturan lainnya segera hadir.",
-                color = Muted,
-                fontSize = 13.sp,
-                modifier = Modifier.padding(start = 4.dp, bottom = 12.dp),
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .clickable(onClick = onLogout)
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text("Keluar", color = Color(0xFFE5484D), fontSize = 15.sp, fontWeight = FontWeight.Medium)
-            }
-        }
-    }
-}

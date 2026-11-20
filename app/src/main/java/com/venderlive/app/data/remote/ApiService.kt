@@ -2,14 +2,19 @@ package com.venderlive.app.data.remote
 
 import com.venderlive.app.data.model.ApiEnvelope
 import com.venderlive.app.data.model.AuthResult
+import com.venderlive.app.data.model.BlockedUser
+import com.venderlive.app.data.model.LinkRequest
+import com.venderlive.app.data.model.LinkState
 import com.venderlive.app.data.model.FirebaseLoginRequest
 import com.venderlive.app.data.model.OtpRequest
 import com.venderlive.app.data.model.OtpVerifyRequest
 import com.venderlive.app.data.model.ProfileUpdateRequest
 import com.venderlive.app.data.model.UserProfile
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 /**
  * Contract with our own backend on our own VPS.
@@ -32,6 +37,26 @@ interface ApiService {
     /** First-run profile: the name and gender the user picks before entering the app. */
     @POST("v1/profile")
     suspend fun updateProfile(@Body body: ProfileUpdateRequest): ApiEnvelope<UserProfile>
+
+    /** Which sign-in methods are tied to this account. */
+    @GET("v1/account/links")
+    suspend fun accountLinks(): ApiEnvelope<List<LinkState>>
+
+    @POST("v1/account/links")
+    suspend fun linkAccount(@Body body: LinkRequest): ApiEnvelope<LinkState>
+
+    @DELETE("v1/account/links/{provider}")
+    suspend fun unlinkAccount(@Path("provider") provider: String): ApiEnvelope<LinkState>
+
+    @GET("v1/account/blocked")
+    suspend fun blockedUsers(): ApiEnvelope<List<BlockedUser>>
+
+    @DELETE("v1/account/blocked/{id}")
+    suspend fun unblock(@Path("id") id: String): ApiEnvelope<Map<String, Any>>
+
+    /** Removes the account for good. */
+    @DELETE("v1/account")
+    suspend fun deleteAccount(): ApiEnvelope<Map<String, Any>>
 
     // Phase 2 (room + seats) will add:
     // GET  v1/rooms                    -> room list

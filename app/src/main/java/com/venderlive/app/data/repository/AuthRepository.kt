@@ -3,6 +3,8 @@ package com.venderlive.app.data.repository
 import com.venderlive.app.data.local.CachedProfile
 import com.venderlive.app.data.local.SessionStore
 import com.venderlive.app.data.model.AuthResult
+import com.venderlive.app.data.model.BlockedUser
+import com.venderlive.app.data.model.LinkRequest
 import com.venderlive.app.data.model.FirebaseLoginRequest
 import com.venderlive.app.data.model.OtpRequest
 import com.venderlive.app.data.model.OtpVerifyRequest
@@ -83,7 +85,7 @@ class AuthRepository(
      * Retrofit throws on any 4xx/5xx and drops the server's own message, which is why the
      * screen only said "HTTP 401". Pull the backend's `message` out of the error body instead.
      */
-    private suspend fun <T> readingServerMessage(call: suspend () -> T): T {
+    suspend fun <T> readingServerMessage(call: suspend () -> T): T {
         try {
             return call()
         } catch (e: retrofit2.HttpException) {
@@ -151,6 +153,46 @@ class AuthRepository(
             ?.let { it.code == 0 }
             ?: false
         return synced
+    }
+
+    /** Sign-in methods tied to this account, e.g. google=true, telegram=false. */
+    suspend fun accountLinks(): Map<String, Boolean> {
+        val rows = readingServerMessage { api.accountLinks() }.data ?: emptyList()
+        return rows.associate { it.provider to it.linked }
+    }
+
+    /**
+     * Tie the Google account just chosen to the signed-in account. Firebase signs in with
+     * the Google credential only to prove ownership; the server link is what matters, and
+     * our own session token is never replaced.
+     */
+    suspend fun linkGoogle(googleIdToken: String) {
+        val credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(googleIdToken, null)
+        val firebaseUser = auth.signInWithCredential(credential).await().user
+            ?: error("Firebase tidak mengembalikan user")
+        val idToken = firebaseUser.getIdToken(true).await().token
+            ?: error("Gagal mengambil ID token")
+        val response = readingServerMessage { api.linkAccount(LinkRequest("google", idToken)) }
+        if (response.code != 0) error(response.message ?: "Gagal mengaitkan akun")
+    }
+
+    suspend fun unlink(provider: String) {
+        val response = readingServerMessage { api.unlinkAccount(provider) }
+        if (response.code != 0) error(response.message ?: "Gagal melepas akun")
+    }
+
+    suspend fun blockedUsers(): List<BlockedUser> =
+        readingServerMessage { api.blockedUsers() }.data ?: emptyList()
+
+    suspend fun unblock(id: String) {
+        readingServerMessage { api.unblock(id) }
+    }
+
+    /** Delete the account on the server, then forget everything on this device. */
+    suspend fun deleteAccount() {
+        val response = readingServerMessage { api.deleteAccount() }
+        if (response.code != 0) error(response.message ?: "Gagal menghapus akun")
+        logout()
     }
 
     suspend fun logout() {

@@ -34,7 +34,6 @@ import androidx.compose.ui.res.painterResource
 import com.venderlive.app.R
 import com.venderlive.app.ui.profile.ComingSoonScreen
 import com.venderlive.app.ui.profile.ProfileScreen
-import com.venderlive.app.ui.profile.SettingsScreen
 import com.venderlive.app.ui.profile.ProfileStats
 import com.venderlive.app.ui.theme.BrandAccent
 import com.venderlive.app.ui.theme.SurfaceCard
@@ -49,6 +48,7 @@ fun HomeScreen(
     nickname: String? = null,
     publicId: String? = null,
     gender: String? = null,
+    authRepository: com.venderlive.app.data.repository.AuthRepository,
     onLogout: () -> Unit,
     onOpenRoom: (String) -> Unit = {},
 ) {
@@ -87,7 +87,10 @@ fun HomeScreen(
                             stats = ProfileStats(),
                             onMenuClick = { openPage = it },
                         )
-                        "Pengaturan" -> SettingsScreen(
+                        "Pengaturan" -> com.venderlive.app.ui.profile.SettingsHome(
+                            repo = authRepository,
+                            nickname = nickname?.takeIf { it.isNotBlank() } ?: "user_" + userId.takeLast(6),
+                            displayId = publicId?.takeIf { it.isNotBlank() } ?: userId,
                             onBack = { openPage = null },
                             onLogout = onLogout,
                         )

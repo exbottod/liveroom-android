@@ -36,3 +36,21 @@ data class ApiEnvelope<T>(
     val message: String? = null,
     val data: T? = null,
 )
+
+/** One sign-in method and whether it is tied to this account. */
+data class LinkState(
+    val provider: String,
+    val linked: Boolean = false,
+)
+
+data class LinkRequest(
+    val provider: String,
+    @SerializedName("id_token") val idToken: String,
+)
+
+data class BlockedUser(
+    val id: String,
+    @SerializedName("public_id") val publicId: String? = null,
+    val nickname: String? = null,
+    val avatar: String? = null,
+)
