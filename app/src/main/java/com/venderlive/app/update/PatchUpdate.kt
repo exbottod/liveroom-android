@@ -3,6 +3,8 @@ package com.venderlive.app.update
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
@@ -124,7 +126,21 @@ object PatchUpdate {
         copy
     }.getOrNull()
 
+
+    private val main = Handler(Looper.getMainLooper())
+
+    /** Android only allows a Toast and an activity launch from the main thread. */
+    private fun toast(context: Context, text: String, long: Boolean = false) {
+        main.post {
+            runCatching { Toast.makeText(context, text, if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT).show() }
+        }
+    }
+
     private fun install(context: Context, apk: File) {
+        main.post { startInstall(context, apk) }
+    }
+
+    private fun startInstall(context: Context, apk: File) {
         runCatching {
             val uri = FileProvider.getUriForFile(context, "${context.packageName}.updates", apk)
             val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -142,29 +158,38 @@ object PatchUpdate {
     fun downloadAndInstall(context: Context, target: String) {
         val app = context.applicationContext
         kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
-            val step = stepFor(target, installedVersion(app))
-            if (step != null) {
-                Toast.makeText(app, "Mengunduh pembaruan kecil...", Toast.LENGTH_SHORT).show()
-                val patch = File(app.cacheDir, "update.bsdiff")
-                val base = installedApk(app)
-                if (base != null && download("$PATCH_DIR/${step.file}", patch) &&
-                    (step.sha256.isBlank() || sha256(patch).equals(step.sha256, ignoreCase = true))
-                ) {
-                    val rebuilt = File(updatesDir(app), "venderlive-$target.apk")
-                    val ok = runCatching { BsPatch.terapkan(base, patch, rebuilt).let { true } }.getOrDefault(false)
-                    if (ok && rebuilt.exists() && rebuilt.length() > 2_000_000L) {
-                        install(app, rebuilt)
-                        return@launch
+            // A crash here used to close the whole app, so every step is guarded and
+            // every failure ends with the full APK download instead.
+            try {
+                val step = stepFor(target, installedVersion(app))
+                if (step != null) {
+                    toast(app, "Mengunduh pembaruan kecil...")
+                    val patch = File(app.cacheDir, "update.bsdiff")
+                    val base = installedApk(app)
+                    val downloaded = base != null && download("$PATCH_DIR/${step.file}", patch) &&
+                        (step.sha256.isBlank() || sha256(patch).equals(step.sha256, ignoreCase = true))
+                    if (downloaded && base != null) {
+                        val rebuilt = File(updatesDir(app), "venderlive-$target.apk")
+                        val result = runCatching { BsPatch.terapkan(base, patch, rebuilt) }.getOrNull()
+                        if (result?.ok == true && rebuilt.exists() && rebuilt.length() > 2_000_000L) {
+                            install(app, rebuilt)
+                            return@launch
+                        }
+                        runCatching { rebuilt.delete() }
                     }
+                    toast(app, "Pembaruan kecil gagal, mengunduh versi penuh...", long = true)
                 }
-                Toast.makeText(app, "Pembaruan kecil gagal, mengunduh versi penuh...", Toast.LENGTH_LONG).show()
-            }
-            val full = File(updatesDir(app), "venderlive-$target.apk")
-            if (download(FULL_APK, full)) {
-                install(app, full)
-            } else {
-                Toast.makeText(app, "Unduhan gagal. Periksa koneksi lalu coba lagi.", Toast.LENGTH_LONG).show()
+                val full = File(updatesDir(app), "venderlive-$target.apk")
+                if (download(FULL_APK, full)) {
+                    install(app, full)
+                } else {
+                    toast(app, "Unduhan gagal. Periksa koneksi lalu coba lagi.", long = true)
+                }
+            } catch (error: Throwable) {
+                // Never let a background failure reach the default handler.
+                toast(app, "Pembaruan gagal: " + (error.message ?: error.javaClass.simpleName), long = true)
             }
         }
     }
+
 }
