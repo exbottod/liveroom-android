@@ -22,6 +22,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
@@ -30,6 +35,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,6 +79,41 @@ private val DiamondPacks = listOf(
     CoinPack(2_000_000, 250_000, 1_790_000),
 )
 
+/** Where the developer panel publishes the balances. */
+private const val CONFIG_URL = "https://exbottod.github.io/liveroom-android/wallet.json"
+
+internal data class WalletConfig(
+    val coins: Long = 0L,
+    val diamonds: Long = 0L,
+    /** How many diamonds buy [coinsPerTrade] coins. */
+    val diamondsPerTrade: Long = 100L,
+    val coinsPerTrade: Long = 33L,
+)
+
+internal suspend fun fetchWalletConfig(): WalletConfig? = withContext(Dispatchers.IO) {
+    runCatching {
+        val url = URL("$CONFIG_URL?t=" + System.currentTimeMillis())
+        val connection = (url.openConnection() as HttpURLConnection).apply {
+            connectTimeout = 10000
+            readTimeout = 10000
+            setRequestProperty("User-Agent", "VenderLive")
+        }
+        if (connection.responseCode != 200) return@runCatching null
+        val json = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+        WalletConfig(
+            coins = json.optLong("coins", 0L),
+            diamonds = json.optLong("diamonds", 0L),
+            diamondsPerTrade = json.optLong("diamondsPerTrade", 100L).takeIf { it > 0 } ?: 100L,
+            coinsPerTrade = json.optLong("coinsPerTrade", 33L).takeIf { it > 0 } ?: 33L,
+        )
+    }.getOrNull()
+}
+
+/** Diamond amounts offered for exchange, straight from the reference screen. */
+private val DiamondTrades = listOf(
+    10_000L, 100_000L, 1_000_000L, 10_000_000L, 100_000_000L,
+)
+
 private fun thousands(value: Long): String =
     "%,d".format(value).replace(',', '.')
 
@@ -89,8 +130,30 @@ fun WalletScreen(
     val context = LocalContext.current
     var diamonds by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf<String?>(null) }
+    // Balances stay empty until the developer panel publishes them.
+    var coins by remember { mutableStateOf(coinBalance) }
+    var gems by remember { mutableStateOf(diamondBalance) }
+    var config by remember { mutableStateOf(WalletConfig(coinBalance, diamondBalance)) }
+    var message by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        fetchWalletConfig()?.let {
+            config = it
+            coins = it.coins
+            gems = it.diamonds
+        }
+    }
 
     BackHandler(onBack = onBack)
+
+    message?.let {
+        AlertDialog(
+            onDismissRequest = { message = null },
+            title = { Text("Pertukaran") },
+            text = { Text(it) },
+            confirmButton = { TextButton(onClick = { message = null }) { Text("Oke") } },
+        )
+    }
 
     busy?.let {
         AlertDialog(
@@ -139,24 +202,58 @@ fun WalletScreen(
             Row(
                 modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
                     .background(
-                        Brush.horizontalGradient(
-                            listOf(Color(0xFFFFE9A3), Color(0xFFFFD24D)),
-                        ),
+                        if (diamonds) {
+                            Brush.horizontalGradient(listOf(Color(0xFF8E6BFF), Color(0xFF5B33E0)))
+                        } else {
+                            Brush.horizontalGradient(listOf(Color(0xFFFFE9A3), Color(0xFFFFD24D)))
+                        },
                     )
                     .padding(horizontal = 16.dp, vertical = 18.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(if (diamonds) "Berlian" else "Koin", color = Color(0xFF8A6A00), fontSize = 13.sp)
+                    Text(
+                        if (diamonds) "Berlian" else "Koin",
+                        color = if (diamonds) Color(0xFFEDE6FF) else Color(0xFF8A6A00),
+                        fontSize = 13.sp,
+                    )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        thousands(if (diamonds) diamondBalance else coinBalance),
-                        color = Color(0xFF4A3700), fontSize = 26.sp, fontWeight = FontWeight.Bold,
+                        thousands(if (diamonds) gems else coins),
+                        color = if (diamonds) Color.White else Color(0xFF4A3700),
+                        fontSize = 26.sp, fontWeight = FontWeight.Bold,
                     )
                 }
                 Text(if (diamonds) "◆" else "★", color = Color(0xFFFFF6D8), fontSize = 40.sp)
             }
             Spacer(Modifier.height(14.dp))
+
+            if (diamonds) {
+                // Exchange diamonds for coins, as on the reference screen.
+                Text("Tukar Berlian ke Koin", color = Ink, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    "${thousands(config.diamondsPerTrade)} Berlian untuk ${thousands(config.coinsPerTrade)} Koin",
+                    color = Muted, fontSize = 12.sp,
+                )
+                Spacer(Modifier.height(12.dp))
+                DiamondTrades.forEach { cost ->
+                    val gain = cost * config.coinsPerTrade / config.diamondsPerTrade
+                    TradeRow(cost = cost, gain = gain) {
+                        if (gems < cost) {
+                            message = "Berlianmu belum cukup. Butuh ${thousands(cost)} berlian."
+                        } else {
+                            gems -= cost
+                            coins += gain
+                            message = "Berhasil ditukar: ${thousands(cost)} berlian menjadi ${thousands(gain)} koin."
+                        }
+                    }
+                    Spacer(Modifier.height(10.dp))
+                }
+                Spacer(Modifier.height(8.dp))
+                Text("Tukar Berlian ke Koin", color = Ink, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.height(8.dp))
+            }
 
             // Ticket vault promo.
             Row(
@@ -271,6 +368,32 @@ private fun PackRow(pack: CoinPack, diamond: Boolean, onBuy: () -> Unit) {
                 .clickable(onClick = onBuy).padding(horizontal = 16.dp, vertical = 10.dp),
         ) {
             Text("IDR ${thousands(pack.price)}", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        }
+    }
+}
+
+/** One exchange row: the coins received and the diamond price button. */
+@Composable
+private fun TradeRow(cost: Long, gain: Long, onTrade: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
+            .background(Color(0xFFF7F8FA)).padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            Modifier.size(48.dp).clip(CircleShape).background(Color(0xFFFFF4D6)),
+            contentAlignment = Alignment.Center,
+        ) { Text("★", color = Gold, fontSize = 24.sp) }
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(thousands(gain), color = Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text("Koin", color = Muted, fontSize = 12.sp)
+        }
+        Box(
+            Modifier.clip(RoundedCornerShape(50)).background(Teal)
+                .clickable(onClick = onTrade).padding(horizontal = 16.dp, vertical = 10.dp),
+        ) {
+            Text("Berlian ${thousands(cost)}", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
         }
     }
 }

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel Developer VenderLive</title>
+<style>
+  :root { --ink:#12141c; --muted:#6b7280; --line:#e5e7eb; --teal:#12b8a0; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+         background:#f6f7f9; color:var(--ink); }
+  header { background:#12141c; color:#fff; padding:22px 20px; }
+  header h1 { margin:0; font-size:19px; letter-spacing:.2px; }
+  header p { margin:6px 0 0; font-size:12.5px; color:#a8adbb; }
+  main { max-width:720px; margin:0 auto; padding:20px 16px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:16px; }
+  .card h2 { margin:0 0 4px; font-size:15px; }
+  .card p.hint { margin:0 0 14px; font-size:12.5px; color:var(--muted); line-height:1.5; }
+  label { display:block; font-size:12.5px; font-weight:600; margin:12px 0 6px; }
+  input, textarea { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px;
+                    font-size:14px; font-family:inherit; background:#fbfbfc; }
+  textarea { min-height:150px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; }
+  .row > div { flex:1 1 180px; }
+  button { margin-top:16px; width:100%; padding:13px; border:0; border-radius:11px;
+           background:var(--teal); color:#fff; font-size:15px; font-weight:600; cursor:pointer; }
+  button:disabled { background:#b9c2c7; cursor:wait; }
+  .note { font-size:12px; color:var(--muted); margin-top:10px; line-height:1.5; }
+  .ok { color:#0c8a72; font-weight:600; }
+  .err { color:#d33a2c; font-weight:600; }
+  code { background:#f1f3f6; padding:1px 5px; border-radius:5px; font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Panel Developer VenderLive</h1>
+  <p>Simpan saldo koin, berlian, dan daftar level SVIP ke aplikasi.</p>
+</header>
+<main>
+
+  <div class="card">
+    <h2>Saldo</h2>
+    <p class="hint">Nilai ini yang dibaca aplikasi saat dibuka. Isi 0 untuk mengosongkan.</p>
+    <div class="row">
+      <div>
+        <label for="coins">Koin</label>
+        <input id="coins" type="number" min="0" step="1" value="0">
+      </div>
+      <div>
+        <label for="diamonds">Berlian</label>
+        <input id="diamonds" type="number" min="0" step="1" value="0">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="dp">Berlian per tukar</label>
+        <input id="dp" type="number" min="1" step="1" value="100">
+      </div>
+      <div>
+        <label for="cp">Koin yang didapat</label>
+        <input id="cp" type="number" min="1" step="1" value="33">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Level SVIP</h2>
+    <p class="hint">Tempel daftar level di sini (format JSON). Dipakai untuk halaman SVIP nanti.</p>
+    <textarea id="levels" spellcheck="false">[
+  { "level": 1, "score": 80000000, "reset_return_score": 20000000 },
+  { "level": 2, "score": 200000000, "reset_return_score": 80000000 }
+]</textarea>
+  </div>
+
+  <div class="card">
+    <h2>Kunci GitHub</h2>
+    <p class="hint">Butuh token dengan izin <code>repo</code>. Token hanya dipakai di browser ini dan tidak disimpan di server mana pun.</p>
+    <label for="token">Token</label>
+    <input id="token" type="password" placeholder="ghp_...">
+    <button id="save">Simpan ke Aplikasi</button>
+    <div id="status" class="note"></div>
+  </div>
+
+  <div class="card">
+    <h2>Alamat data</h2>
+    <p class="hint">Aplikasi membaca <code>docs/wallet.json</code> dari halaman ini. Status di bawah menunjukkan file yang sekarang dipakai.</p>
+    <div id="current" class="note">Memuat...</div>
+  </div>
+
+</main>
+<script>
+const OWNER = "exbottod", REPO = "liveroom-android", PATH = "docs/wallet.json", BRANCH = "main";
+const API = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`;
+const $ = (id) => document.getElementById(id);
+
+async function loadCurrent() {
+  try {
+    const res = await fetch(`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${PATH}?t=${Date.now()}`);
+    if (!res.ok) throw new Error("belum ada file");
+    const data = await res.json();
+    $("coins").value = data.coins ?? 0;
+    $("diamonds").value = data.diamonds ?? 0;
+    $("dp").value = data.diamondsPerTrade ?? 100;
+    $("cp").value = data.coinsPerTrade ?? 33;
+    if (Array.isArray(data.levels) && data.levels.length) $("levels").value = JSON.stringify(data.levels, null, 2);
+    $("current").innerHTML = `<span class="ok">Terbaca.</span> Koin ${data.coins ?? 0}, Berlian ${data.diamonds ?? 0}, diperbarui ${data.updated ?? "-"}.`;
+  } catch (e) {
+    $("current").innerHTML = `<span class="err">Gagal membaca:</span> ${e.message}`;
+  }
+}
+
+function encode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  bytes.forEach((b) => (bin += String.fromCharCode(b)));
+  return btoa(bin);
+}
+
+$("save").addEventListener("click", async () => {
+  const token = $("token").value.trim();
+  const status = $("status");
+  if (!token) { status.innerHTML = '<span class="err">Token masih kosong.</span>'; return; }
+
+  let levels = [];
+  const raw = $("levels").value.trim();
+  if (raw) {
+    try { levels = JSON.parse(raw); }
+    catch (e) { status.innerHTML = '<span class="err">Daftar level bukan JSON yang benar.</span>'; return; }
+  }
+
+  const payload = {
+    coins: Number($("coins").value || 0),
+    diamonds: Number($("diamonds").value || 0),
+    diamondsPerTrade: Number($("dp").value || 100),
+    coinsPerTrade: Number($("cp").value || 33),
+    levels,
+    updated: new Date().toISOString().slice(0, 10),
+  };
+
+  const button = $("save");
+  button.disabled = true;
+  status.textContent = "Menyimpan...";
+  try {
+    let sha;
+    const head = await fetch(`${API}?ref=${BRANCH}`, {
+      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" },
+    });
+    if (head.ok) sha = (await head.json()).sha;
+    else if (head.status !== 404) throw new Error(`GitHub menolak (${head.status})`);
+
+    const res = await fetch(API, {
+      method: "PUT",
+      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: `Panel: koin ${payload.coins}, berlian ${payload.diamonds}`,
+        content: encode(JSON.stringify(payload, null, 2)),
+        branch: BRANCH,
+        ...(sha ? { sha } : {}),
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `Gagal (${res.status})`);
+    }
+    status.innerHTML = '<span class="ok">Tersimpan.</span> Buka ulang aplikasi untuk melihat saldo baru. Halaman bisa butuh 1 sampai 2 menit menyesuaikan.';
+    setTimeout(loadCurrent, 2500);
+  } catch (e) {
+    status.innerHTML = `<span class="err">Gagal:</span> ${e.message}`;
+  } finally {
+    button.disabled = false;
+  }
+});
+
+loadCurrent();
+</script>
+</body>
+</html>
