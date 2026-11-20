@@ -1,4 +1,4 @@
 {
-  "versi": "0.1.45",
-  "catatan": "Panel: pesan galat login yang jelas, termasuk domain belum diizinkan"
+  "versi": "0.1.46",
+  "catatan": "Tangkap context di luar lambda klik"
 }
