@@ -58,6 +58,16 @@ fun AppNav() {
         }
     }
 
+    // One guarded entry point for "open someone's profile". A room seat can carry an
+    // empty or "null" id; navigating with that used to miss every route and close the
+    // app. Blank ids are ignored and any navigation error is swallowed.
+    val openProfile: (String) -> Unit = { raw ->
+        val id = raw.trim()
+        if (id.isNotEmpty() && !id.equals("null", ignoreCase = true)) {
+            runCatching { navController.navigate("profile/$id") }
+        }
+    }
+
     NavHost(navController = navController, startDestination = startRoute) {
         composable(Route.LOGIN) {
             val vm: LoginViewModel = viewModel { LoginViewModel(app.authRepository) }
@@ -106,7 +116,7 @@ fun AppNav() {
                 gender = cached?.gender,
                 authRepository = app.authRepository,
                 onOpenRoom = { id -> navController.navigate("room/$id") },
-                onOpenProfile = { id -> navController.navigate("profile/$id") },
+                onOpenProfile = openProfile,
                 onLogout = {
                     scope.launch {
                         app.authRepository.logout()
@@ -124,7 +134,7 @@ fun AppNav() {
             RoomScreen(
                 viewModel = vm,
                 onExit = { navController.popBackStack() },
-                onOpenProfile = { id -> navController.navigate("profile/$id") },
+                onOpenProfile = openProfile,
             )
         }
     }

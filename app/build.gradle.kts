@@ -22,8 +22,8 @@ android {
         applicationId = "com.venderlive.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 43
-        versionName = "0.1.42"
+        versionCode = 44
+        versionName = "0.1.43"
 
         buildConfigField("String", "API_BASE_URL", "\"${prop("API_BASE_URL", "https://vender.43-156-99-4.sslip.io/")}\"")
         buildConfigField("String", "AGORA_APP_ID", "\"${prop("AGORA_APP_ID", "")}\"")

@@ -60,8 +60,13 @@ fun RoomScreen(
         // An occupied seat opens that person's profile; an empty one still does the
         // normal join/leave behaviour.
         onSeatClick = { seat ->
-            val who = seat.userId
-            if (seat.occupied && who != null) onOpenProfile(who) else viewModel.onSeatClick(seat)
+            val who = seat.userId?.trim().orEmpty()
+            // Only a real id opens a profile; otherwise keep the normal seat behaviour.
+            if (seat.occupied && who.isNotEmpty() && !who.equals("null", ignoreCase = true)) {
+                onOpenProfile(who)
+            } else {
+                viewModel.onSeatClick(seat)
+            }
         },
         onTabSelected = viewModel::selectTab,
         onDismissBanner = viewModel::dismissExpBanner,
