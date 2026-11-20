@@ -54,13 +54,14 @@ private val Muted = Color(0xFF8B90A0)
 
 /**
  * "Siapkan Profil": the only thing between a first login and the home screen.
- * The arrow at the bottom right is the confirm action; there is no way back, because
- * the account exists already and logout lives in the Pengaturan tab inside the app.
+ * The arrow at the bottom right is the confirm action. The back arrow signs out of the
+ * unfinished sign-up and returns to the login screen.
  */
 @Composable
 fun ProfileSetupScreen(
     viewModel: ProfileSetupViewModel,
     onDone: () -> Unit,
+    onBackToLogin: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
@@ -88,13 +89,10 @@ fun ProfileSetupScreen(
         ) {
             Spacer(Modifier.height(8.dp))
 
-            IconButton(
-                onClick = {
-                    Toast
-                        .makeText(context, "Selesaikan profil dulu untuk masuk", Toast.LENGTH_SHORT)
-                        .show()
-                },
-            ) {
+            // Back leaves the half-finished sign-up: it signs out and returns to the login
+            // screen, so nobody is stuck here with an account they did not mean to use.
+            androidx.activity.compose.BackHandler(onBack = onBackToLogin)
+            IconButton(onClick = onBackToLogin) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali", tint = Ink)
             }
 

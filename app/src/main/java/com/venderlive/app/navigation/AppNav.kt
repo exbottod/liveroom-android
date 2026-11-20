@@ -74,6 +74,14 @@ fun AppNav() {
                         popUpTo(Route.PROFILE_SETUP) { inclusive = true }
                     }
                 },
+                onBackToLogin = {
+                    scope.launch {
+                        app.authRepository.logout()
+                        navController.navigate(Route.LOGIN) {
+                            popUpTo(Route.PROFILE_SETUP) { inclusive = true }
+                        }
+                    }
+                },
             )
         }
 
