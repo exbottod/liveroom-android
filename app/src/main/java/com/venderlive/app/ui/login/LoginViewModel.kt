@@ -132,10 +132,25 @@ class LoginViewModel(private val repo: AuthRepository) : ViewModel() {
                     loading = false,
                     error = "Belum ada akun Google di HP ini, atau SHA-1 aplikasi belum didaftarkan di Firebase",
                 )
+            } catch (e: com.google.firebase.auth.FirebaseAuthException) {
+                _state.value = _state.value.copy(
+                    loading = false,
+                    error = "Firebase menolak login Google [${e.errorCode}] ${e.message.orEmpty()}".trim(),
+                )
+            } catch (e: com.google.firebase.FirebaseNetworkException) {
+                _state.value = _state.value.copy(
+                    loading = false,
+                    error = "Tidak bisa menghubungi Firebase, cek internet lalu coba lagi",
+                )
+            } catch (e: androidx.credentials.exceptions.GetCredentialException) {
+                _state.value = _state.value.copy(
+                    loading = false,
+                    error = "Google gagal [${e.type}] ${e.message.orEmpty()}".trim(),
+                )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     loading = false,
-                    error = e.message ?: "Login Google gagal",
+                    error = "${e.javaClass.simpleName}: ${e.message.orEmpty()}".trim(),
                 )
             }
         }
