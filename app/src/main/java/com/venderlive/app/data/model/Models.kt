@@ -20,6 +20,8 @@ data class UserProfile(
     val bio: String? = null,
     /** Two-letter country code for the flag next to the nickname, e.g. "ID". */
     val country: String? = null,
+    /** Birthday as YYYY-MM-DD, chosen on the Edit profile page. */
+    @SerializedName("birth_date") val birthDate: String? = null,
     @SerializedName("is_new") val isNew: Boolean = false,
 )
 
@@ -69,6 +71,7 @@ data class OtherProfile(
     val level: Int = 0,
     val bio: String? = null,
     val country: String? = null,
+    @SerializedName("birth_date") val birthDate: String? = null,
     val stats: ProfileCounts = ProfileCounts(),
 )
 
@@ -83,6 +86,7 @@ data class ProfileEditRequest(
     val nickname: String? = null,
     val bio: String? = null,
     val country: String? = null,
+    @SerializedName("birth_date") val birthDate: String? = null,
 )
 
 data class AvatarRequest(

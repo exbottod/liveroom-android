@@ -164,8 +164,15 @@ class AuthRepository(
             ?: error("Profil tidak ditemukan")
 
     /** Save the pencil edits. The local cache is updated so the Aku tab follows along. */
-    suspend fun editProfile(nickname: String?, bio: String?, country: String?) {
-        val response = readingServerMessage { api.editProfile(ProfileEditRequest(nickname, bio, country)) }
+    suspend fun editProfile(
+        nickname: String?,
+        bio: String?,
+        country: String?,
+        birthDate: String? = null,
+    ) {
+        val response = readingServerMessage {
+            api.editProfile(ProfileEditRequest(nickname, bio, country, birthDate))
+        }
         val user = response.data
         if (user != null) sessionStore.cacheServerProfile(user)
     }
