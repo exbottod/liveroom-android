@@ -128,6 +128,24 @@ fun AppNav() {
             )
         }
 
+        // Someone else's profile. Without this destination the navigation threw and the
+        // app closed; it has to live inside the NavHost, not only as a route constant.
+        composable(
+            route = Route.PROFILE,
+            arguments = listOf(navArgument("publicId") { type = NavType.StringType }),
+        ) { entry ->
+            val publicId = entry.arguments?.getString("publicId").orEmpty()
+            val cached = remember { runCatching { app.authRepository.cachedProfile() }.getOrNull() }
+            val mine = publicId.isNotBlank() &&
+                (publicId == cached?.publicId || publicId == app.authRepository.currentUserId())
+            ProfileDetailScreen(
+                repo = app.authRepository,
+                publicId = publicId,
+                isMe = mine,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
         composable(Route.ROOM) { entry ->
             val roomId = entry.arguments?.getString("roomId").orEmpty()
             val vm: RoomViewModel = viewModel { RoomViewModel(roomId) }
