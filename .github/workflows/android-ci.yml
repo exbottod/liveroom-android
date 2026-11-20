@@ -10,6 +10,9 @@ concurrency:
   group: android-ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -71,3 +74,16 @@ jobs:
           path: diag/build/outputs/apk/debug/*.apk
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Patch kecil dan info versi
+        env:
+          CI_NOTE: ${{ github.event.head_commit.message }}
+        run: |
+          python3 -m pip install --quiet bsdiff4
+          python3 tools/ci-patch.py
+          git config user.name exbottod
+          git config user.email 200479783+exbottod@users.noreply.github.com
+          git add docs/unduh
+          git diff --staged --quiet || git commit -m "Patch kecil v$(grep -oP 'versionName = "\K[^"]+' app/build.gradle.kts) [skip ci]"
+          git push || true
+

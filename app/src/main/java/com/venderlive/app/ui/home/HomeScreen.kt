@@ -63,10 +63,14 @@ fun HomeScreen(
     var showCheckIn by remember { mutableStateOf(false) }
     // A newer release published on GitHub turns into this dialog.
     var update by remember { mutableStateOf<com.venderlive.app.update.AvailableUpdate?>(null) }
+    // Size of the small difference file, shown instead of the full APK size.
+    var smallSize by remember { mutableStateOf<Long?>(null) }
     val context = androidx.compose.ui.platform.LocalContext.current
     LaunchedEffect(Unit) {
         // Asking once per launch is enough; a failed check is silent.
-        update = com.venderlive.app.update.UpdateChecker.check()
+        val found = com.venderlive.app.update.UpdateChecker.check()
+        update = found
+        found?.let { smallSize = com.venderlive.app.update.PatchUpdate.smallSize(context, it.version) }
     }
 
     val tabs = listOf(
@@ -132,7 +136,11 @@ fun HomeScreen(
                         Text("Versi di HP kamu ${com.venderlive.app.BuildConfig.VERSION_NAME}.")
                         if (new.sizeBytes > 0) {
                             Spacer(Modifier.height(6.dp))
-                            Text("Unduhan sekitar ${"%.1f".format(new.sizeBytes / 1024.0 / 1024.0)} MB.")
+                            val bytes = smallSize ?: new.sizeBytes
+                            Text(
+                                (if (smallSize != null) "Unduhan kecil sekitar " else "Unduhan sekitar ") +
+                                    "${"%.1f".format(bytes / 1024.0 / 1024.0)} MB.",
+                            )
                         }
                         if (new.notes.isNotBlank()) {
                             Spacer(Modifier.height(8.dp))
@@ -142,7 +150,7 @@ fun HomeScreen(
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        com.venderlive.app.update.UpdateChecker.downloadAndInstall(context, new)
+                        com.venderlive.app.update.PatchUpdate.downloadAndInstall(context, new.version)
                         update = null
                     }) { Text("Perbarui sekarang") }
                 },
