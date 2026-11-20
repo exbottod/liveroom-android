@@ -22,8 +22,8 @@ android {
         applicationId = "com.venderlive.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 33
-        versionName = "0.1.32"
+        versionCode = 34
+        versionName = "0.1.33"
 
         buildConfigField("String", "API_BASE_URL", "\"${prop("API_BASE_URL", "https://vender.43-156-99-4.sslip.io/")}\"")
         buildConfigField("String", "AGORA_APP_ID", "\"${prop("AGORA_APP_ID", "")}\"")
@@ -54,8 +54,10 @@ android {
         release {
             // Same fixed key as debug so a release APK can update an installed one.
             signingConfig = signingConfigs.getByName("debug")
-            isMinifyEnabled = true
-            isShrinkResources = true
+            // R8 shrank the profile screens away in 0.1.31/0.1.32, so the release build
+            // is left unshrunk on purpose. Splitting per CPU still keeps it small.
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
