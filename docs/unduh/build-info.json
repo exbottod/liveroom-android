@@ -1,4 +1,4 @@
 {
   "versi": "0.1.45",
-  "catatan": "Patch update: Toast dan pemasangan lewat main thread, semua galat ditangkap (v0.1.45)"
+  "catatan": "Panel: pesan galat login yang jelas, termasuk domain belum diizinkan"
 }
