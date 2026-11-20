@@ -98,8 +98,8 @@
   <div class="card">
     <a class="btn" href="https://github.com/exbottod/liveroom-android/releases/latest/download/venderlive.apk">Unduh APK</a>
     <div class="meta">
-      <span>Versi 0.1.12</span>
-      <span>21,7 MB</span>
+      <span id="ver">Versi 0.1.18</span>
+      <span id="size">20,6 MB</span>
       <span>Android 7.0+</span>
     </div>
 
@@ -109,7 +109,7 @@
       <li>Buka file yang terunduh dari notifikasi atau folder Unduhan.</li>
       <li>Kalau muncul peringatan, pilih Izinkan dari sumber ini.</li>
       <li>Ketuk Pasang, lalu buka aplikasinya.</li>
-      <li>Masuk dengan nomor HP, kode OTP dikirim lewat SMS.</li>
+      <li>Masuk dengan Google atau nomor HP.</li>
     </ol>
 
     <div class="note">
@@ -128,5 +128,33 @@
   </footer>
 </div>
 <p style="text-align:center;margin-top:26px"><a href="agreement.html" style="color:#12b3a6">Perjanjian Pengguna</a> &middot; <a href="privacy.html" style="color:#12b3a6">Kebijakan Privasi</a></p>
+
+<script>
+// Read the newest release from GitHub so the version and size always match the APK.
+(function () {
+  var API = "https://api.github.com/repos/exbottod/liveroom-android/releases/latest";
+  var ver = document.getElementById("ver");
+  var size = document.getElementById("size");
+  if (!ver || !size) return;
+
+  function mb(bytes) {
+    return (bytes / 1048576).toFixed(1).replace(".", ",") + " MB";
+  }
+
+  fetch(API, { headers: { Accept: "application/vnd.github+json" } })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (release) {
+      if (!release) return;
+      if (release.tag_name) {
+        ver.textContent = "Versi " + release.tag_name.replace(/^v/, "");
+      }
+      var apk = (release.assets || []).filter(function (a) {
+        return a.name === "venderlive.apk";
+      })[0];
+      if (apk && apk.size) size.textContent = mb(apk.size);
+    })
+    .catch(function () { /* keep the built-in values */ });
+})();
+</script>
 </body>
 </html>
