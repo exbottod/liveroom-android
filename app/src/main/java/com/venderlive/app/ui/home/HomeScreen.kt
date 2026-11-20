@@ -20,6 +20,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +60,14 @@ fun HomeScreen(
     var openPage by remember { mutableStateOf<String?>(null) }
     // The daily check-in rewards are not backed by the server yet, so the popup stays off.
     var showCheckIn by remember { mutableStateOf(false) }
+    // A newer release published on GitHub turns into this dialog.
+    var update by remember { mutableStateOf<com.venderlive.app.update.AvailableUpdate?>(null) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(Unit) {
+        // Asking once per launch is enough; a failed check is silent.
+        update = com.venderlive.app.update.UpdateChecker.check()
+    }
+
     val tabs = listOf(
         "Beranda" to R.drawable.home_ic_tab_home,
         "Permainan" to R.drawable.home_ic_tab_game,
@@ -103,6 +113,33 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+
+        update?.let { new ->
+            AlertDialog(
+                onDismissRequest = { update = null },
+                title = { Text("Versi ${new.version} sudah tersedia") },
+                text = {
+                    Column {
+                        Text("Versi di HP kamu ${com.venderlive.app.BuildConfig.VERSION_NAME}.")
+                        if (new.sizeBytes > 0) {
+                            Spacer(Modifier.height(6.dp))
+                            Text("Unduhan sekitar ${"%.1f".format(new.sizeBytes / 1024.0 / 1024.0)} MB.")
+                        }
+                        if (new.notes.isNotBlank()) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(new.notes.take(220), fontSize = 13.sp)
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        com.venderlive.app.update.UpdateChecker.downloadAndInstall(context, new)
+                        update = null
+                    }) { Text("Perbarui sekarang") }
+                },
+                dismissButton = { TextButton(onClick = { update = null }) { Text("Nanti") } },
+            )
         }
 
         if (showCheckIn) {
