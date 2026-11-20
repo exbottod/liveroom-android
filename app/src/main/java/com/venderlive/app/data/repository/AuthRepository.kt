@@ -1,13 +1,16 @@
 package com.venderlive.app.data.repository
 
+import com.venderlive.app.data.local.CachedProfile
 import com.venderlive.app.data.local.SessionStore
 import com.venderlive.app.data.model.AuthResult
 import com.venderlive.app.data.model.FirebaseLoginRequest
 import com.venderlive.app.data.model.OtpRequest
 import com.venderlive.app.data.model.OtpVerifyRequest
+import com.venderlive.app.data.model.ProfileUpdateRequest
 import com.venderlive.app.data.remote.ApiService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthProvider
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository(
@@ -17,6 +20,15 @@ class AuthRepository(
     private val auth: FirebaseAuth get() = FirebaseAuth.getInstance()
 
     fun currentUserId(): String? = auth.currentUser?.uid
+
+    /** Cached name/gender so the home screen can greet the user without a request. */
+    fun cachedProfile(): CachedProfile = runBlocking { sessionStore.profile() }
+
+    /**
+     * True while the signed-in user has not finished the profile screen yet. Read once
+     * at startup: it decides whether the app opens on the profile screen or on home.
+     */
+    fun needsProfileSetup(): Boolean = !cachedProfile().completed
 
     /** Step 1: ask Firebase to send the OTP to the formatted phone number. */
     suspend fun requestOtp(
@@ -77,6 +89,7 @@ class AuthRepository(
         val response = api.otpVerify(OtpVerifyRequest(phoneE164, code))
         val result = response.data ?: error(response.message ?: "Kode salah")
         sessionStore.save(result.accessToken, result.refreshToken, result.user.id)
+        sessionStore.cacheServerProfile(result.user)
         return result
     }
 
@@ -99,7 +112,26 @@ class AuthRepository(
         val result = response.data ?: error(response.message ?: "Login ditolak server")
 
         sessionStore.save(result.accessToken, result.refreshToken, result.user.id)
+        sessionStore.cacheServerProfile(result.user)
         return result
+    }
+
+    /**
+     * Save the name and gender picked on the profile screen.
+     *
+     * The local cache is written first, so the user can enter the app even when the
+     * network is slow. Returns true when the server also stored it; false means the
+     * values only live on this device for now and must be pushed again later.
+     */
+    suspend fun saveProfile(nickname: String, gender: String): Boolean {
+        val clean = nickname.trim()
+        require(clean.isNotEmpty()) { "Nama tidak boleh kosong" }
+        sessionStore.saveProfile(clean, gender)
+        val synced = runCatching { api.updateProfile(ProfileUpdateRequest(clean, gender)) }
+            .getOrNull()
+            ?.let { it.code == 0 }
+            ?: false
+        return synced
     }
 
     suspend fun logout() {

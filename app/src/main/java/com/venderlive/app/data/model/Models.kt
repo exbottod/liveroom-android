@@ -12,6 +12,8 @@ data class UserProfile(
     val avatar: String? = null,
     val phone: String? = null,
     val level: Int = 0,
+    /** "male" or "female", null while the user has not finished the profile screen. */
+    val gender: String? = null,
     @SerializedName("is_new") val isNew: Boolean = false,
 )
 
@@ -19,6 +21,12 @@ data class AuthResult(
     @SerializedName("access_token") val accessToken: String,
     @SerializedName("refresh_token") val refreshToken: String? = null,
     val user: UserProfile,
+)
+
+/** Sent once, right after the first login, before the user reaches the home screen. */
+data class ProfileUpdateRequest(
+    val nickname: String,
+    val gender: String,
 )
 
 data class ApiEnvelope<T>(
