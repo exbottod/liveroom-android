@@ -82,6 +82,11 @@ fun LoginScreen(
     var phoneMode by remember { mutableStateOf(false) }
     val st by viewModel.state.collectAsState()
     val screenContext = LocalContext.current
+    // Any successful sign-in (Google or phone) moves on; previously only the phone
+    // screen listened for it, so a Google login succeeded and stayed on this screen.
+    androidx.compose.runtime.LaunchedEffect(st.loggedIn) {
+        st.loggedIn?.let(onLoggedIn)
+    }
     androidx.compose.runtime.LaunchedEffect(st.error) {
         st.error?.let {
             android.widget.Toast.makeText(screenContext, it, android.widget.Toast.LENGTH_LONG).show()

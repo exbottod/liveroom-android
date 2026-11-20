@@ -105,7 +105,7 @@ fun LoginHome(
             SocialButton(
                 label = "Google",
                 filled = false,
-                onClick = { onGoogle(); soon("Login Google") },
+                onClick = onGoogle,
                 icon = { GoogleGlyph(Modifier.size(26.dp)) },
             )
 
