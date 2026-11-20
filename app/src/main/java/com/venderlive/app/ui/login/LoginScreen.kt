@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -51,6 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
@@ -92,15 +94,42 @@ fun LoginScreen(
         // Agreement and privacy pages open inside the app, not in Chrome.
         var webPage by remember { mutableStateOf<Pair<String, String>?>(null) }
         val host = context as? android.app.Activity
-        LoginHome(
-            viewModel = viewModel,
-            onLoggedIn = onLoggedIn,
-            onPhone = { phoneMode = true },
-            onGoogle = { host?.let(viewModel::signInWithGoogle) },
-            onGuest = onGuest,
-            onOpenTerms = { webPage = "Perjanjian Pengguna" to TERMS_URL },
-            onOpenPrivacy = { webPage = "Kebijakan Privasi" to PRIVACY_URL },
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            LoginHome(
+                viewModel = viewModel,
+                onLoggedIn = onLoggedIn,
+                onPhone = { phoneMode = true },
+                onGoogle = {
+                    val activity = host
+                    if (activity == null) {
+                        android.widget.Toast
+                            .makeText(screenContext, "Google tidak bisa dibuka di layar ini", android.widget.Toast.LENGTH_LONG)
+                            .show()
+                    } else {
+                        viewModel.signInWithGoogle(activity)
+                    }
+                },
+                onGuest = onGuest,
+                onOpenTerms = { webPage = "Perjanjian Pengguna" to TERMS_URL },
+                onOpenPrivacy = { webPage = "Kebijakan Privasi" to PRIVACY_URL },
+            )
+            // A failed Google sign-in is shown on the screen itself, not only as a
+            // toast, so a failure can never look like nothing happened.
+            st.error?.let { message ->
+                Text(
+                    text = message,
+                    color = Color.White,
+                    fontSize = 13.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .align(androidx.compose.ui.Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(start = 18.dp, end = 18.dp, bottom = 92.dp)
+                        .background(Color(0xFFD93636), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                )
+            }
+        }
         webPage?.let { (title, url) ->
             InAppWebScreen(title = title, url = url, onClose = { webPage = null })
         }
