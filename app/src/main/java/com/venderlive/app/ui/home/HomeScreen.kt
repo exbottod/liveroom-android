@@ -165,7 +165,10 @@ fun HomeScreen(
             )
         }
 
-        NavigationBar(containerColor = androidx.compose.ui.graphics.Color.White) {
+        // A page opened from here (Pengaturan, Dompet, SVIP, profil, dan lainnya) is its
+        // own screen, so the four tabs at the bottom step aside while it is open.
+        if (openPage == null) {
+            NavigationBar(containerColor = androidx.compose.ui.graphics.Color.White) {
             tabs.forEachIndexed { index, (label, icon) ->
                 NavigationBarItem(
                     selected = tab == index,
@@ -194,6 +197,7 @@ fun HomeScreen(
                         indicatorColor = androidx.compose.ui.graphics.Color.Transparent,
                     ),
                 )
+            }
             }
         }
     }
