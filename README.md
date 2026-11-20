@@ -40,7 +40,15 @@ app/src/main/java/com/exbottod/venderlive/
    (package name must be `com.venderlive.app`).
 3. Firebase console: enable Phone sign-in, add SHA-1 + SHA-256 of the signing
    key (needed for auto-verification).
-4. Backend must expose `POST /v1/auth/firebase-login` and `GET /v1/me`.
+4. Backend must expose `POST /v1/auth/firebase-login`, `POST /v1/profile` and `GET /v1/me`.
+
+## First-run profile
+
+After a login where the server answers `is_new: true` (or without a nickname) the app
+opens "Siapkan Profil" before home: name (max 30 characters) and gender
+(`male` / `female`). The arrow at the bottom right confirms, saves locally in DataStore
+and posts the values to the backend, then goes straight to home. Later logins skip the
+screen. The invite code field is not part of this version.
 
 ## Backend contract (phase 1)
 

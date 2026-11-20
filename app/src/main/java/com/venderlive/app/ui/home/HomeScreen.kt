@@ -44,6 +44,7 @@ import com.venderlive.app.ui.theme.SurfaceCard
 @Composable
 fun HomeScreen(
     userId: String,
+    nickname: String? = null,
     onLogout: () -> Unit,
     onOpenRoom: (String) -> Unit = {},
 ) {
@@ -69,7 +70,8 @@ fun HomeScreen(
                 2 -> MomentScreen()
                 3 -> MessagesScreen()
                 else -> ProfileScreen(
-                    nickname = "user_" + userId.takeLast(6),
+                    nickname = nickname?.takeIf { it.isNotBlank() }
+                        ?: "user_" + userId.takeLast(6),
                     displayId = userId,
                     stats = ProfileStats(),
                     onLogout = onLogout,

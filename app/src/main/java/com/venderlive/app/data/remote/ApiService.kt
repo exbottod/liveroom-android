@@ -5,6 +5,7 @@ import com.venderlive.app.data.model.AuthResult
 import com.venderlive.app.data.model.FirebaseLoginRequest
 import com.venderlive.app.data.model.OtpRequest
 import com.venderlive.app.data.model.OtpVerifyRequest
+import com.venderlive.app.data.model.ProfileUpdateRequest
 import com.venderlive.app.data.model.UserProfile
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -27,6 +28,10 @@ interface ApiService {
 
     @GET("v1/me")
     suspend fun me(): ApiEnvelope<UserProfile>
+
+    /** First-run profile: the name and gender the user picks before entering the app. */
+    @POST("v1/profile")
+    suspend fun updateProfile(@Body body: ProfileUpdateRequest): ApiEnvelope<UserProfile>
 
     // Phase 2 (room + seats) will add:
     // GET  v1/rooms                    -> room list
