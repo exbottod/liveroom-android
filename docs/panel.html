@@ -140,7 +140,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/fireba
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider,
          sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, getDocs, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyAn5YG1LeeICQurRn_qyQtkSgPaup_Azd8",
@@ -150,7 +149,7 @@ const app = initializeApp({
   messagingSenderId: "383929756819",
   appId: "1:383929756819:android:2a6cc966ba67730bf4f166",
 });
-const auth = getAuth(app), db = getFirestore(app), storage = getStorage(app);
+const auth = getAuth(app), db = getFirestore(app);
 const $ = (id) => document.getElementById(id);
 
 /* ---------- menu: only SVIP is live for now, the rest are placeholders ---------- */
@@ -226,13 +225,88 @@ async function renderUsers() {
   };
 }
 
+
+/* ---------- Realtime Database (gratis) + unggah gambar ke VPS ---------- */
+const VPS = "https://vender.43-156-99-4.sslip.io";
+const RTDB_HOSTS = [
+  "https://test-app-94b28-default-rtdb.firebaseio.com",
+  "https://test-app-94b28-default-rtdb.asia-southeast1.firebasedatabase.app",
+  "https://test-app-94b28-default-rtdb.europe-west1.firebasedatabase.app",
+];
+let rtdbBase = null;
+
+async function token() {
+  if (!auth.currentUser) throw new Error("Masuk dulu sebagai admin.");
+  return auth.currentUser.getIdToken();
+}
+
+/** The project's Realtime Database address: try the usual ones, keep the one that answers. */
+async function rtdbUrl() {
+  if (rtdbBase) return rtdbBase;
+  const auth_ = await token();
+  for (const host of RTDB_HOSTS) {
+    try {
+      const res = await fetch(host + "/svip.json?shallow=true&auth=" + auth_);
+      if (res.status !== 404) { rtdbBase = host; return host; }
+    } catch (e) { /* try the next address */ }
+  }
+  throw new Error("Realtime Database belum aktif. Buka Firebase Console, Realtime Database, Create database.");
+}
+
+async function rtdbRead(path) {
+  const base = await rtdbUrl(), auth_ = await token();
+  const res = await fetch(base + "/" + path + ".json?auth=" + auth_);
+  if (!res.ok) return null;
+  return res.json();
+}
+
+async function rtdbWrite(path, value) {
+  const base = await rtdbUrl(), auth_ = await token();
+  const res = await fetch(base + "/" + path + ".json?auth=" + auth_, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(value),
+  });
+  if (!res.ok) {
+    throw new Error(res.status === 401 || res.status === 403
+      ? "Akun ini belum ditulis di admins pada Realtime Database."
+      : "Gagal menyimpan: HTTP " + res.status);
+  }
+  return res.json();
+}
+
+/** Kirim gambar ke server VPS, bukan ke Firebase Storage. */
+async function uploadAsset(file) {
+  const auth_ = await token();
+  const base64 = await new Promise((done, fail) => {
+    const reader = new FileReader();
+    reader.onload = () => done(String(reader.result || ""));
+    reader.onerror = () => fail(new Error("Gambar tidak bisa dibaca"));
+    reader.readAsDataURL(file);
+  });
+  const res = await fetch(VPS + "/v1/aset-upload", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + auth_, "Content-Type": "application/json" },
+    body: JSON.stringify({ image_base64: base64 }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.message || "HTTP " + res.status);
+  return body.data.url;
+}
+
 /* ---------- SVIP page ---------- */
 const DEFAULTS = [1,2,3,4,5,6].map((n) => ({ level:n, price:0, score:0, weeklyCoins:0, medalUrl:"", labelUrl:"", frameUrl:"" }));
 
 async function loadSvip() {
-  const snap = await getDoc(doc(db, "pub", "svip"));
-  const levels = snap.exists() && Array.isArray(snap.data().levels) && snap.data().levels.length
-    ? snap.data().levels : DEFAULTS;
+  // Realtime Database is the source now; Firestore stays as a mirror for the app.
+  let stored = null;
+  try {
+    const fromRtdb = await rtdbRead("svip");
+    if (fromRtdb && Array.isArray(fromRtdb.levels) && fromRtdb.levels.length) stored = fromRtdb;
+  } catch (e) { /* fall back to the Firestore copy */ }
+  if (!stored) {
+    const snap = await getDoc(doc(db, "pub", "svip"));
+    if (snap.exists()) stored = snap.data();
+  }
+  const levels = stored && Array.isArray(stored.levels) && stored.levels.length ? stored.levels : DEFAULTS;
   state.levels = levels.map((l) => ({ ...l }));
   if (!state.levels.find((l) => l.level === state.tab)) state.tab = state.levels[0].level;
 }
@@ -260,32 +334,34 @@ function render() {
     ${["medal:Medali SVIP","label:Label SVIP","frame:Bingkai avatar"].map((s) => { const [k,n]=s.split(":"); const u=t[k+"Url"];
       return `<div class="card"><h2>${n}</h2><p class="hint">Gambar PNG atau WebP transparan, ukuran bebas.</p>
         <div class="pic"><img alt="" src="${u||""}" ${u?"":'style="visibility:hidden"'}>
-        <input type="file" accept="image/*" data-up="${k}"></div></div>`; }).join("")}
+        <input type="file" accept="image/*" data-up="${k}">
+        <input class="in" placeholder="atau tempel URL gambar" data-urlup="${k}" value="${u||""}" style="margin-top:8px"></div></div>`; }).join("")}
   `;
   v.querySelectorAll(".tab").forEach((b) => b.onclick = () => { state.tab = Number(b.dataset.l); render(); });
   v.querySelectorAll("input[data-f]").forEach((i) => i.oninput = () => { t[i.dataset.f] = Number(i.value || 0); dirty = true; });
+  v.querySelectorAll("input[data-urlup]").forEach((i) => i.oninput = () => { t[i.dataset.urlup + "Url"] = i.value.trim(); dirty = true; });
   v.querySelectorAll("input[data-up]").forEach((i) => i.onchange = async () => {
     const file = i.files[0]; if (!file) return;
     try {
       toast("Mengunggah gambar...", "ok");
-      const ext = (file.name.split(".").pop() || "png").toLowerCase();
-      const r = ref(storage, `svip/lv${t.level}_${i.dataset.up}_${Date.now()}.${ext}`);
-      await uploadBytes(r, file);
-      t[i.dataset.up + "Url"] = await getDownloadURL(r);
-      dirty = true; render(); toast("Gambar terunggah. Tekan Simpan.", "ok");
+      t[i.dataset.up + "Url"] = await uploadAsset(file);
+      dirty = true; render(); toast("Gambar terunggah ke server. Tekan Simpan.", "ok");
     } catch (e) { toast("Gagal unggah: " + e.message, "err"); }
   });
 }
 
 async function saveSvip() {
   const b = $("save"); b.disabled = true;
+  const payload = {
+    levels: state.levels.map((l) => ({ level:l.level, price:+l.price||0, score:+l.score||0, weeklyCoins:+l.weeklyCoins||0,
+      medalUrl:l.medalUrl||"", labelUrl:l.labelUrl||"", frameUrl:l.frameUrl||"" })),
+    updatedAt: Date.now(),
+  };
   try {
-    await setDoc(doc(db, "pub", "svip"), {
-      levels: state.levels.map((l) => ({ level:l.level, price:+l.price||0, score:+l.score||0, weeklyCoins:+l.weeklyCoins||0,
-        medalUrl:l.medalUrl||"", labelUrl:l.labelUrl||"", frameUrl:l.frameUrl||"" })),
-      updatedAt: Date.now(),
-    });
-    dirty = false; toast("Tersimpan. Aplikasi langsung memakai data baru.", "ok");
+    await rtdbWrite("svip", payload);
+    // Mirror for the installed app, which still reads the Firestore copy.
+    await setDoc(doc(db, "pub", "svip"), payload).catch(() => {});
+    dirty = false; toast("Tersimpan di Realtime Database.", "ok");
   } catch (e) {
     toast(e.code === "permission-denied" ? "Akun ini bukan admin, tidak boleh menyimpan." : "Gagal: " + e.message, "err");
   } finally { b.disabled = false; }
