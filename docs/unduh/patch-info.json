@@ -1,11 +1,11 @@
 {
   "patch": [
     {
-      "dari": "0.1.39",
-      "ke": "0.1.40",
-      "file": "patch-0.1.39-0.1.40.bsdiff",
-      "ukuran": 3083311,
-      "sha256": "7bd9763c215f1ac95a2a89956639ad1e9b3e6cee883a7eaca868222e00a500ef"
+      "dari": "0.1.40",
+      "ke": "0.1.41",
+      "file": "patch-0.1.40-0.1.41.bsdiff",
+      "ukuran": 3099392,
+      "sha256": "191378d5bf67d3db14304ad60ff724b9e9ce656e543ac363f7a42ee5e6264bcd"
     }
   ]
 }

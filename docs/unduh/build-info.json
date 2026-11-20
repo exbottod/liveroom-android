@@ -1,4 +1,4 @@
 {
-  "versi": "0.1.40",
-  "catatan": "Perbaiki crash saat membuka profil orang lain: daftarkan rute profile/{publicId} (v0.1.40)"
+  "versi": "0.1.41",
+  "catatan": "Sembunyikan tab bawah saat halaman lain dibuka (v0.1.41)"
 }
