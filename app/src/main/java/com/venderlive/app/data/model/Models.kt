@@ -8,6 +8,8 @@ data class FirebaseLoginRequest(
 
 data class UserProfile(
     val id: String,
+    /** Random six-digit ID the user shows to friends, e.g. "255800". */
+    @SerializedName("public_id") val publicId: String? = null,
     val nickname: String? = null,
     val avatar: String? = null,
     val phone: String? = null,

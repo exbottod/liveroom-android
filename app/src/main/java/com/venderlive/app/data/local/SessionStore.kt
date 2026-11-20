@@ -14,6 +14,7 @@ private val Context.dataStore by preferencesDataStore("session")
 data class CachedProfile(
     val nickname: String? = null,
     val gender: String? = null,
+    val publicId: String? = null,
     val completed: Boolean = false,
 )
 
@@ -24,6 +25,7 @@ class SessionStore(private val context: Context) {
     private val keyUserId = stringPreferencesKey("user_id")
     private val keyNickname = stringPreferencesKey("nickname")
     private val keyGender = stringPreferencesKey("gender")
+    private val keyPublicId = stringPreferencesKey("public_id")
     private val keyProfileDone = booleanPreferencesKey("profile_done")
 
     suspend fun accessToken(): String? =
@@ -57,6 +59,7 @@ class SessionStore(private val context: Context) {
         context.dataStore.edit {
             if (!user.nickname.isNullOrBlank()) it[keyNickname] = user.nickname
             if (!user.gender.isNullOrBlank()) it[keyGender] = user.gender
+            if (!user.publicId.isNullOrBlank()) it[keyPublicId] = user.publicId
             // A brand new account still has to pick a name and gender, even when the
             // server hands out a placeholder nickname.
             it[keyProfileDone] = !user.isNew && !user.nickname.isNullOrBlank()
@@ -68,6 +71,7 @@ class SessionStore(private val context: Context) {
         return CachedProfile(
             nickname = prefs[keyNickname],
             gender = prefs[keyGender],
+            publicId = prefs[keyPublicId],
             completed = prefs[keyProfileDone] ?: false,
         )
     }

@@ -84,6 +84,7 @@ fun AppNav() {
             HomeScreen(
                 userId = userId,
                 nickname = cached?.nickname,
+                publicId = cached?.publicId,
                 onOpenRoom = { id -> navController.navigate("room/$id") },
                 onLogout = {
                     scope.launch {
