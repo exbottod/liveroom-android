@@ -117,7 +117,7 @@
     </div>
 
     <p class="sha">
-      SHA-256: <code></code>
+      SHA-256: <code id="sha"></code>
     </p>
   </div>
 
@@ -152,6 +152,10 @@
         return a.name === "venderlive.apk";
       })[0];
       if (apk && apk.size) size.textContent = mb(apk.size);
+      var sha = document.getElementById("sha");
+      if (sha && apk && apk.digest) {
+        sha.textContent = String(apk.digest).replace(/^sha256:/, "");
+      }
     })
     .catch(function () { /* keep the built-in values */ });
 })();
