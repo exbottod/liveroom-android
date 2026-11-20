@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class LoginUiState(
+    val country: Country = DefaultCountry,
     val phone: String = "",
     val otp: String = "",
     val verificationId: String? = null,
@@ -20,7 +21,9 @@ data class LoginUiState(
     val loggedIn: AuthResult? = null,
 ) {
     val stepOtp: Boolean get() = verificationId != null
-    val phoneValid: Boolean get() = phone.length in 9..13
+    val dial: String get() = country.dial
+    val fullPhone: String get() = dial + phone
+    val phoneValid: Boolean get() = phone.length in 6..14
     val canSendOtp: Boolean get() = phoneValid && agreeTerms && !loading
     val canVerify: Boolean get() = otp.length == 6 && !loading
 }
@@ -30,8 +33,12 @@ class LoginViewModel(private val repo: AuthRepository) : ViewModel() {
     private val _state = MutableStateFlow(LoginUiState())
     val state: StateFlow<LoginUiState> = _state.asStateFlow()
 
+    fun onCountryChange(country: Country) {
+        _state.value = _state.value.copy(country = country, error = null)
+    }
+
     fun onPhoneChange(value: String) {
-        _state.value = _state.value.copy(phone = value.filter { it.isDigit() }.take(13), error = null)
+        _state.value = _state.value.copy(phone = value.filter { it.isDigit() }.take(15), error = null)
     }
 
     fun onOtpChange(value: String) {
@@ -53,7 +60,7 @@ class LoginViewModel(private val repo: AuthRepository) : ViewModel() {
 
         viewModelScope.launch {
             try {
-                repo.requestWhatsAppOtp("+62${current.phone}")
+                repo.requestWhatsAppOtp(current.fullPhone)
                 _state.value = _state.value.copy(
                     verificationId = "wa",
                     loading = false,
@@ -76,7 +83,7 @@ class LoginViewModel(private val repo: AuthRepository) : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val result = repo.verifyWhatsAppOtp("+62${current.phone}", current.otp)
+                val result = repo.verifyWhatsAppOtp(current.fullPhone, current.otp)
                 _state.value = _state.value.copy(loading = false, loggedIn = result)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(loading = false, error = e.message ?: "Kode salah")

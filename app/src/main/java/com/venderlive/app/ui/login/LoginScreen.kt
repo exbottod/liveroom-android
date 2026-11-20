@@ -15,16 +15,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -191,19 +201,45 @@ private fun PhoneStep(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
+        var pickerOpen by remember { mutableStateOf(false) }
+
+        Row(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
-                .padding(horizontal = 14.dp, vertical = 18.dp),
+                .clickable { pickerOpen = true }
+                .padding(start = 12.dp, end = 8.dp, top = 18.dp, bottom = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("+62", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
+            Text(state.country.flag, fontSize = 18.sp)
+            Spacer(Modifier.width(6.dp))
+            Text(
+                state.country.dial,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Icon(
+                Icons.Default.ArrowDropDown,
+                contentDescription = "Pilih negara",
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            )
+        }
+
+        if (pickerOpen) {
+            CountryPickerSheet(
+                selected = state.country,
+                onDismiss = { pickerOpen = false },
+                onPick = {
+                    viewModel.onCountryChange(it)
+                    pickerOpen = false
+                },
+            )
         }
         Spacer(Modifier.width(8.dp))
         OutlinedTextField(
             value = state.phone,
             onValueChange = viewModel::onPhoneChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("812 3456 7890") },
+            placeholder = { Text("Nomor WhatsApp") },
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -252,6 +288,101 @@ private fun PhoneStep(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CountryPickerSheet(
+    selected: Country,
+    onDismiss: () -> Unit,
+    onPick: (Country) -> Unit,
+) {
+    var query by remember { mutableStateOf("") }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val results = remember(query) {
+        val q = query.trim().lowercase()
+        if (q.isEmpty()) {
+            AllCountries
+        } else {
+            AllCountries.filter {
+                it.name.lowercase().contains(q) ||
+                    it.iso.lowercase() == q ||
+                    it.dial.contains(q.removePrefix("+"))
+            }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.background,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Pilih negara",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(Modifier.weight(1f))
+            IconButton(onClick = onDismiss) {
+                Icon(Icons.Default.Close, contentDescription = "Tutup")
+            }
+        }
+
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            placeholder = { Text("Cari negara atau kode") },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = BrandAccent,
+                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+            ),
+        )
+
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            items(results, key = { it.iso }) { country ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onPick(country) }
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(country.flag, fontSize = 22.sp)
+                    Spacer(Modifier.width(14.dp))
+                    Text(
+                        text = country.name,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = country.dial,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                    )
+                    if (country.iso == selected.iso) {
+                        Spacer(Modifier.width(8.dp))
+                        Text("✓", color = BrandAccent, fontWeight = FontWeight.Bold)
+                    }
+                }
+                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+            }
+        }
+    }
+}
+
 @Composable
 private fun OtpStep(
     state: LoginUiState,
@@ -262,7 +393,7 @@ private fun OtpStep(
             Icon(Icons.Default.ArrowBack, contentDescription = "Kembali", tint = BrandAccent)
         }
         Text(
-            text = "+62${state.phone}",
+            text = state.fullPhone,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground,
         )
